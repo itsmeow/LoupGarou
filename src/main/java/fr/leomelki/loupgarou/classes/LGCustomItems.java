@@ -7,7 +7,6 @@ import java.util.StringJoiner;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -16,6 +15,7 @@ import fr.leomelki.loupgarou.roles.Role;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+@SuppressWarnings("unchecked")
 public class LGCustomItems {
 	static HashMap<Class<? extends Role>, HashMap<String, Material>> mappings = new HashMap<Class<? extends Role>, HashMap<String,Material>>();
 	static {
@@ -58,13 +58,13 @@ public class LGCustomItems {
 	}
 	
 	public static void updateItem(LGPlayer lgp) {
-		lgp.getPlayer().getInventory().setItemInOffHand(new ItemStack(getItem(lgp)));
-		lgp.getPlayer().updateInventory();
+		//lgp.getPlayer().getInventory().setItemInOffHand(new ItemStack(getItem(lgp)));
+		//lgp.getPlayer().updateInventory();
 	}
 
 	public static void updateItem(LGPlayer lgp, ArrayList<String> constraints) {
-		lgp.getPlayer().getInventory().setItemInOffHand(new ItemStack(getItem(lgp, constraints)));
-		lgp.getPlayer().updateInventory();
+		//lgp.getPlayer().getInventory().setItemInOffHand(new ItemStack(getItem(lgp, constraints)));
+		//lgp.getPlayer().updateInventory();
 	}
 	
 	@RequiredArgsConstructor

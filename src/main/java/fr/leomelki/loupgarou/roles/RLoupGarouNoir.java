@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftInventoryCustom;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftInventoryCustom;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -16,7 +16,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import fr.leomelki.loupgarou.MainLg;
-import fr.leomelki.loupgarou.classes.LGCustomItems;
 import fr.leomelki.loupgarou.classes.LGCustomItems.LGCustomItemsConstraints;
 import fr.leomelki.loupgarou.classes.LGGame;
 import fr.leomelki.loupgarou.classes.LGPlayer;
@@ -29,7 +28,7 @@ public class RLoupGarouNoir extends Role{
 	static ItemStack[] items = new ItemStack[9];
 	static ItemStack[] skip = new ItemStack[9];
 	static {
-		items[3] = new ItemStack(Material.IRON_NUGGET);
+		items[3] = new ItemStack(Material.SPIDER_EYE);
 		ItemMeta meta = items[3].getItemMeta();
 		meta.setDisplayName("§7§lNe rien faire");
 		meta.setLore(Arrays.asList("§8Passez votre tour"));
@@ -177,7 +176,7 @@ public class RLoupGarouNoir extends Role{
 						if(role instanceof RLoupGarou)
 							if(!player.isDead()) {//Si il n'a pas été tué je ne sais comment
 								role.join(player, false);
-								player.getPlayer().getInventory().setItemInOffHand(new ItemStack(LGCustomItems.getItem(player)));
+								//player.getPlayer().getInventory().setItemInOffHand(new ItemStack(LGCustomItems.getItem(player)));
 							}
 					
 					for(LGPlayer lgp : getGame().getInGame()) {

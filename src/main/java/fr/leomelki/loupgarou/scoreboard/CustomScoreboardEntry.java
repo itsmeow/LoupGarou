@@ -3,7 +3,6 @@ package fr.leomelki.loupgarou.scoreboard;
 import java.util.Arrays;
 
 import com.comphenix.protocol.wrappers.EnumWrappers.ScoreboardAction;
-import com.comphenix.protocol.wrappers.WrappedChatComponent;
 
 import fr.leomelki.com.comphenix.packetwrapper.WrapperPlayServerScoreboardScore;
 import fr.leomelki.com.comphenix.packetwrapper.WrapperPlayServerScoreboardTeam;
@@ -12,13 +11,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class CustomScoreboardEntry {
-	private static WrappedChatComponent nullComponent = WrappedChatComponent.fromText("");
 	
 	//setter car flemme de modifier le systeme pour le rendre plus logique
 	@Getter @Setter private int score;
 	private final String name;
 	private final CustomScoreboard scoreboard;
-	private WrappedChatComponent prefix, suffix;
+	private String prefix, suffix;
 
 	public CustomScoreboardEntry(int score, CustomScoreboard scoreboard) {
 		this.score = score;
@@ -51,25 +49,23 @@ public class CustomScoreboardEntry {
 		if(displayName.length() > 16) {
 			char colorCode = 'f';
 			int limit = displayName.charAt(14) == '§' && displayName.charAt(13) != '§' ? 14 : displayName.charAt(15) == '§' ? 15 : 16;
-			String prefixStr = displayName.substring(0, limit);
-			
-			prefix = WrappedChatComponent.fromText(prefixStr);
+			prefix = displayName.substring(0, limit);
 			
 			if(limit == 16) {
 				boolean storeColorCode = false;
-				for(char c : prefixStr.toCharArray())
+				for(char c : prefix.toCharArray())
 					if(storeColorCode) {
 						storeColorCode = false;
 						colorCode = c;
 					}else
 						if(c == '§')
 							storeColorCode = true;
-				suffix = WrappedChatComponent.fromText("§"+colorCode+displayName.substring(limit));
+				suffix = "§"+colorCode+displayName.substring(limit);
 			}else
-				suffix = WrappedChatComponent.fromText(displayName.substring(limit));
+				suffix = displayName.substring(limit);
 		} else {
-			prefix = WrappedChatComponent.fromText(displayName);
-			suffix = nullComponent;
+			prefix = displayName;
+			suffix = "";
 		}
 		
 		if(scoreboard.isShown()) {

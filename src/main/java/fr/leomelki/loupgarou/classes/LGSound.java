@@ -5,14 +5,14 @@ import org.bukkit.Sound;
 import lombok.Getter;
 
 public enum LGSound {
-	KILL(Sound.ENTITY_BLAZE_DEATH),
-	START_NIGHT(Sound.ENTITY_SKELETON_DEATH),
-	START_DAY(Sound.ENTITY_ZOMBIE_DEATH),
-	AMBIANT_NIGHT(Sound.MUSIC_DISC_MALL),
-	AMBIANT_DAY(Sound.MUSIC_DISC_MELLOHI);
+	KILL(Sound.BLAZE_DEATH, "entity.blaze.death"),
+	START_NIGHT(Sound.SKELETON_DEATH, "entity.skeleton.death"),
+	START_DAY(Sound.ZOMBIE_DEATH, "entity.zombie.death");
 	
 	@Getter Sound sound;
-	LGSound(Sound sound){
+	@Getter String id;
+	LGSound(Sound sound, String id){
 		this.sound = sound;
+		this.id = id;
 	}
 }

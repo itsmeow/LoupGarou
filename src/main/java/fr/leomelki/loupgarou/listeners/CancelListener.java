@@ -11,7 +11,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 
 import fr.leomelki.loupgarou.classes.LGPlayer;
@@ -61,9 +60,9 @@ public class CancelListener implements Listener{
 		if(LGPlayer.thePlayer((Player)e.getWhoClicked()).getGame() != null)
 			e.setCancelled(true);
 	}
-	@EventHandler
+	/*@EventHandler
 	public void onClickInventory(PlayerSwapHandItemsEvent e) {
 		if(LGPlayer.thePlayer(e.getPlayer()).getGame() != null)
 			e.setCancelled(true);
-	}
+	}*/
 }

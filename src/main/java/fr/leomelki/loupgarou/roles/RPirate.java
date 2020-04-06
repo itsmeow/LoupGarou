@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftInventoryCustom;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftInventoryCustom;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -27,7 +27,7 @@ import fr.leomelki.loupgarou.events.LGPlayerKilledEvent.Reason;
 public class RPirate extends Role{
 	static ItemStack[] items = new ItemStack[9];
 	static {
-		items[3] = new ItemStack(Material.IRON_NUGGET);
+		items[3] = new ItemStack(Material.SPIDER_EYE);
 		ItemMeta meta = items[3].getItemMeta();
 		meta.setDisplayName("§7§lNe rien faire");
 		meta.setLore(Arrays.asList("§8Passez votre tour"));

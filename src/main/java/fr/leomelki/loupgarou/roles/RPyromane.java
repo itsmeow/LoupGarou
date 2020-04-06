@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftInventoryCustom;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftInventoryCustom;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -22,24 +22,24 @@ import fr.leomelki.com.comphenix.packetwrapper.WrapperPlayServerHeldItemSlot;
 import fr.leomelki.loupgarou.MainLg;
 import fr.leomelki.loupgarou.classes.LGGame;
 import fr.leomelki.loupgarou.classes.LGPlayer;
-import fr.leomelki.loupgarou.classes.LGWinType;
 import fr.leomelki.loupgarou.classes.LGPlayer.LGChooseCallback;
+import fr.leomelki.loupgarou.classes.LGWinType;
 import fr.leomelki.loupgarou.events.LGEndCheckEvent;
 import fr.leomelki.loupgarou.events.LGGameEndEvent;
 import fr.leomelki.loupgarou.events.LGPlayerKilledEvent;
-import fr.leomelki.loupgarou.events.LGPyromaneGasoilEvent;
 import fr.leomelki.loupgarou.events.LGPlayerKilledEvent.Reason;
+import fr.leomelki.loupgarou.events.LGPyromaneGasoilEvent;
 
 public class RPyromane extends Role{
 	static ItemStack[] items = new ItemStack[9];
 	static ItemStack cancel, nothing;
 	static {
-		cancel = new ItemStack(Material.IRON_NUGGET);
+		cancel = new ItemStack(Material.SPIDER_EYE);
 		ItemMeta meta = cancel.getItemMeta();
 		meta.setDisplayName("§7§lAnnuler");
 		meta.setLore(Arrays.asList("§8Rouvrir le menu"));
 		cancel.setItemMeta(meta);
-		nothing = new ItemStack(Material.IRON_NUGGET);
+		nothing = new ItemStack(Material.SPIDER_EYE);
 		meta = nothing.getItemMeta();
 		meta.setDisplayName("§7§lNe rien faire");
 		nothing.setItemMeta(meta);

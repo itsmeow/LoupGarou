@@ -21,7 +21,7 @@ import fr.leomelki.loupgarou.events.LGPlayerKilledEvent.Reason;
 public class RLoupGarouBlanc extends Role{
 	private static ItemStack skip;
 	static {
-		skip = new ItemStack(Material.IRON_NUGGET);
+		skip = new ItemStack(Material.SPIDER_EYE);
 		ItemMeta meta = skip.getItemMeta();
 		meta.setDisplayName("§7§lNe rien faire");
 		meta.setLore(Arrays.asList("§8Passez votre tour"));
@@ -117,7 +117,7 @@ public class RLoupGarouBlanc extends Role{
 	public void onClick(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
 		LGPlayer player = LGPlayer.thePlayer(p);
-		if(e.getItem() != null && e.getItem().getType() == Material.IRON_NUGGET && player.getRole() == this) {
+		if(e.getItem() != null && e.getItem().getType() == Material.SPIDER_EYE && player.getRole() == this) {
 			player.stopChoosing();
 			p.getInventory().setItem(8, null);
 			p.updateInventory();

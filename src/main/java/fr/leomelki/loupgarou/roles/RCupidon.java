@@ -13,7 +13,6 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher.WrappedDataWatcherObject;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
@@ -174,7 +173,7 @@ public class RCupidon extends Role{
 			public void run() {
 				WrapperPlayServerEntityEquipment equip = new WrapperPlayServerEntityEquipment();
 				equip.setEntityID(entityId);
-				equip.setSlot(ItemSlot.HEAD);
+				equip.setSlot(4); // helmet
 		        ItemStack skull = new ItemStack(Material.SUGAR);
 				equip.setItem(skull);
 				equip.sendPacket(to.getPlayer());

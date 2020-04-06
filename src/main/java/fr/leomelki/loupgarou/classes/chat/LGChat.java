@@ -14,7 +14,9 @@ public class LGChat {
 	
 	public static interface LGChatCallback{
 		public String receive(LGPlayer sender, String message);
-		public default String send(LGPlayer sender, String message) {return null;};
+        public default String send(LGPlayer sender, String message) {
+            return null;
+        }
 	}
 
 	public void sendMessage(LGPlayer sender, String message) {

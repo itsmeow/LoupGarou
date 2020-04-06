@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftInventoryCustom;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftInventoryCustom;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -71,7 +71,7 @@ public class RSurvivant extends Role{
 		ItemStack[] items = new ItemStack[9];
 		VariableCache cache = LGPlayer.thePlayer(player).getCache();
 		if(cache.<Integer>get("survivant_left") > 0) {
-			items[3] = new ItemStack(Material.IRON_NUGGET);
+			items[3] = new ItemStack(Material.SPIDER_EYE);
 			ItemMeta meta = items[3].getItemMeta();
 			meta.setDisplayName("§7§lNe rien faire");
 			meta.setLore(Arrays.asList("§8Passez votre tour"));
@@ -84,7 +84,7 @@ public class RSurvivant extends Role{
 					"§8  les §c§lLoups§8 cette nuit."));
 			items[5].setItemMeta(meta);
 		} else {
-			items[4] = new ItemStack(Material.IRON_NUGGET);
+			items[4] = new ItemStack(Material.SPIDER_EYE);
 			ItemMeta meta = items[4].getItemMeta();
 			meta.setDisplayName("§7§lNe rien faire");
 			meta.setLore(Arrays.asList("§8Passez votre tour"));
@@ -126,7 +126,7 @@ public class RSurvivant extends Role{
 			
 		if(lgp.getRole() != this || item == null || item.getItemMeta() == null)return;
 
-		if(item.getType() == Material.IRON_NUGGET) {
+		if(item.getType() == Material.SPIDER_EYE) {
 			e.setCancelled(true);
 			lgp.sendMessage("§4§oTu es sans défense...");
 			closeInventory(player);

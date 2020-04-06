@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftInventoryCustom;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftInventoryCustom;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -35,7 +35,7 @@ import fr.leomelki.loupgarou.utils.VariousUtils;
 public class RPretre extends Role{
 	static ItemStack[] items = new ItemStack[9];
 	static {
-		items[3] = new ItemStack(Material.IRON_NUGGET);
+		items[3] = new ItemStack(Material.SPIDER_EYE);
 		ItemMeta meta = items[3].getItemMeta();
 		meta.setDisplayName("§7§lNe rien faire");
 		meta.setLore(Arrays.asList("§8Passez votre tour"));
@@ -114,7 +114,6 @@ public class RPretre extends Role{
 		player.openInventory(inventory);
 	}
 	WrappedDataWatcherObject invisible = new WrappedDataWatcherObject(0, WrappedDataWatcher.Registry.get(Byte.class));
-	@SuppressWarnings("deprecation")
 	@Override
 	protected void onNightTurn(LGPlayer player, Runnable callback) {
 		player.showView();

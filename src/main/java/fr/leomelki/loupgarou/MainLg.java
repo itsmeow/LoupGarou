@@ -90,6 +90,7 @@ public class MainLg extends JavaPlugin {
             config.set("spawns", new ArrayList<List<Double>>());
             for(String role : roles.keySet())// Nombre de participant pour chaque rôle
                 config.set("role." + role, 1);
+            config.set("locale", "fr-fr");
             saveConfig();
         }
         loadConfig();
@@ -391,6 +392,7 @@ public class MainLg extends JavaPlugin {
         for(String role : roles.keySet())
             players += getConfig().getInt("role." + role);
         currentGame = new LGGame(players);
+        Translate.setLocale(getConfig().getString("locale"));
     }
 
     @Override

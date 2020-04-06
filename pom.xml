@@ -22,9 +22,6 @@
         <plugin>
           <artifactId>maven-assembly-plugin</artifactId>
           <configuration>
-            <source>${project.java.version}</source>
-            <target>${project.java.version}</target>
-            <encoding>${project.build.sourceEncoding}</encoding>
             <descriptorRefs>
               <descriptorRef>jar-with-dependencies</descriptorRef>
             </descriptorRefs>
@@ -68,7 +65,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.15.1-R0.1-SNAPSHOT</version>
+            <version>1.8.8-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -76,11 +73,6 @@
             <artifactId>json</artifactId>
             <version>20180813</version>
         </dependency>
-          <dependency>
-            <groupId>com.comphenix.protocol</groupId>
-            <artifactId>ProtocolLib</artifactId>
-            <version>4.4.0</version>
-          </dependency>
           <dependency>
 		    <groupId>org.projectlombok</groupId>
 		    <artifactId>lombok</artifactId>

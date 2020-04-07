@@ -23,30 +23,6 @@ public class RChaperonRouge extends Role{
 		return RoleWinType.VILLAGE;
 	}
 	@Override
-	public String getName() {
-		return "§a§lChaperon Rouge";
-	}
-	@Override
-	public String getFriendlyName() {
-		return "du "+getName();
-	}
-	@Override
-	public String getShortDescription() {
-		return "Tu gagnes avec le §a§lVillage";
-	}
-	@Override
-	public String getDescription() {
-		return "Tu gagnes avec le §a§lVillage§f. Tant que le §a§lChasseur§f est en vie, tu ne peux pas te faire tuer par les §c§lLoups§f pendant la nuit.";
-	}
-	@Override
-	public String getTask() {
-		return "";
-	}
-	@Override
-	public String getBroadcastedTask() {
-		return "";
-	}
-	@Override
 	public int getTimeout() {
 		return -1;
 	}
@@ -71,13 +47,13 @@ public class RChaperonRouge extends Role{
 					if(lgp.getCache().getBoolean("chaperon_kill")) {
 						for(LGPlayer l : getGame().getInGame())
 							if(l.getRoleType() == RoleType.LOUP_GAROU)
-								l.sendMessage("§cVotre cible est immunisée.");
+								l.sendFormat("role.generic.targetimmune");
 					}
 			}else if(e.getPreviousRole() instanceof RGrandMechantLoup) {
 				for(LGPlayer lgp : getGame().getAlive())
 					if(lgp.getCache().getBoolean("chaperon_kill")) {
 						for(LGPlayer l : e.getPreviousRole().getPlayers())
-							l.sendMessage("§cVotre cible est immunisée.");
+							l.sendFormat("role.generic.targetimmune");
 					}
 			}
 		}
@@ -88,7 +64,7 @@ public class RChaperonRouge extends Role{
 			for(LGPlayer lgp : getPlayers())
 				if(lgp.getCache().getBoolean("chaperon_kill")) {
 					lgp.getCache().remove("chaperon_kill");
-					lgp.sendMessage("§9§oTu as été attaqué cette nuit.");
+					lgp.sendRoleFormat(this, "attacked");
 				}
 		}
 	}

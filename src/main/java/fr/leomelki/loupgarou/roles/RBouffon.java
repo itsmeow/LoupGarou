@@ -13,134 +13,120 @@ import fr.leomelki.loupgarou.classes.LGPlayer;
 import fr.leomelki.loupgarou.events.LGGameEndEvent;
 import fr.leomelki.loupgarou.events.LGPlayerKilledEvent;
 import fr.leomelki.loupgarou.events.LGPlayerKilledEvent.Reason;
+import fr.leomelki.loupgarou.localization.Translate;
 
-public class RBouffon extends Role{
-	public RBouffon(LGGame game) {
-		super(game);
-	}
-	@Override
-	public RoleType getType() {
-		return RoleType.NEUTRAL;
-	}
-	@Override
-	public RoleWinType getWinType() {
-		return RoleWinType.NONE;
-	}
-	@Override
-	public String getName() {
-		return "§d§lBouffon";
-	}
-	@Override
-	public String getFriendlyName() {
-		return "du "+getName();
-	}
-	@Override
-	public String getShortDescription() {
-		return "Tu gagnes si tu remplis ton objectif";
-	}
-	@Override
-	public String getDescription() {
-		return "Tu es §d§lNeutre§f et tu gagnes si tu remplis ton objectif. Ton objectif est d'être éliminé par le village lors de n’importe quel vote de jour. Si tu réussis, tu gagnes la partie, mais celle-ci continue. Tu pourras tuer l'une des personnes qui t'ont condamné.";
-	}
-	@Override
-	public String getTask() {
-		return "Choisis quelqu’un à hanter parmi ceux qui ont voté pour ta mort.";
-	}
-	@Override
-	public String getBroadcastedTask() {
-		return "L'esprit vengeur du "+getName()+"§9 rôde sur le village...";
-	}
-	@Override
-	public int getTimeout() {
-		return 15;
-	}
+public class RBouffon extends Role {
 
-	public void onNightTurn(Runnable callback) {
-		 ArrayList<LGPlayer> players = (ArrayList<LGPlayer>) needToPlay.clone();
-		 new Runnable() {
-			
-			@Override
-			public void run() {
-				getGame().cancelWait();
-				if(players.size() == 0) {
-					onTurnFinish(callback);
-					return;
-				}
-				LGPlayer player = players.remove(0);
-				getGame().wait(getTimeout(), ()->{RBouffon.this.onNightTurnTimeout(player);this.run();}, (currentPlayer, secondsLeft)->{
-					return currentPlayer == player ? "§9§lC'est à ton tour !" : "§6C'est au tour "+getFriendlyName()+" §6(§e"+secondsLeft+" s§6)";
-				});
-				player.sendMessage("§6"+getTask());
-			//	player.sendTitle("§6C'est à vous de jouer", "§a"+getTask(), 100);
-				onNightTurn(player, this);
-			}
-		}.run();
-	}
-	public boolean hasPlayersLeft() {
-		return needToPlay.size() > 0;
-	}
-	
-	
-	
-	@Override
-	protected void onNightTurn(LGPlayer player, Runnable callback) {
-		needToPlay.remove(player);
-		player.showView();
-		player.getCache().set("bouffon_win", true);
-		List<LGPlayer> choosable = getGame().getVote().getVotes(player);
-		StringJoiner sj = new StringJoiner("§6§o, §6§o§l");
-		for(LGPlayer lgp : choosable)
-			if(lgp.getPlayer() != null && lgp.getPlayer() != player)
-				sj.add(lgp.getName());
-		
-		player.sendMessage("§6§o§l"+sj+"§6§o "+(sj.length() > 1 ? "ont" : "a")+" voté pour toi.");
-				
-		player.choose((choosen)->{
-			if(choosen != null) {
-				if(!choosable.contains(choosen))
-					player.sendMessage("§7§l"+choosen.getName()+"§4 n'a pas voté pour vous.");
-				else if(choosen.isDead())
-					player.sendMessage("§7§l"+choosen.getName()+"§4 est mort.");//fix
-				else {
-					player.stopChoosing();
-					player.sendMessage("§6Ton fantôme va hanter l'esprit de §7§l"+choosen.getName()+"§6.");
-					getGame().kill(choosen, Reason.BOUFFON);
-					player.hideView();
-					callback.run();
-				}
-			}
-		}, player);
-	}
-	
-	@Override
-	protected void onNightTurnTimeout(LGPlayer player) {
-		player.stopChoosing();
-	}
-	
-	ArrayList<LGPlayer> needToPlay = new ArrayList<LGPlayer>();
-	
-	@EventHandler
-	public void onPlayerKill(LGPlayerKilledEvent e) {
-		if(e.getKilled().getRole() == this && e.getReason() == Reason.VOTE) {
-			needToPlay.add(e.getKilled());
-			getGame().broadcastMessage("§9§oQuelle erreur, le "+getName()+"§9§o aura droit à sa vengeance...");
-			e.getKilled().sendMessage("§6Tu as rempli ta mission, l'heure de la vengeance a sonné.");
-		}
-	}
-	
-	@EventHandler
-	public void onWin(LGGameEndEvent e) {
-		if(e.getGame() == getGame())
-			for(LGPlayer lgp : getGame().getInGame())
-				if(lgp.getRole() == this && lgp.getCache().getBoolean("bouffon_win")) {
-					e.getWinners().add(lgp);
-					new BukkitRunnable() {
-						
-						@Override
-						public void run() {
-							getGame().broadcastMessage("§6§oLe "+getName()+"§6§o a rempli son objectif.");
-						}
-					}.runTaskAsynchronously(MainLg.getInstance());
-				}
-	}
+    private ArrayList<LGPlayer> needToPlay = new ArrayList<LGPlayer>();
+
+    public RBouffon(LGGame game) {
+        super(game);
+    }
+
+    @Override
+    public RoleType getType() {
+        return RoleType.NEUTRAL;
+    }
+
+    @Override
+    public RoleWinType getWinType() {
+        return RoleWinType.NONE;
+    }
+
+    @Override
+    public int getTimeout() {
+        return 15;
+    }
+
+    @Override
+    public void onNightTurn(Runnable callback) {
+        @SuppressWarnings("unchecked")
+        ArrayList<LGPlayer> players = (ArrayList<LGPlayer>) needToPlay.clone();
+        new Runnable() {
+
+            @Override
+            public void run() {
+                getGame().cancelWait();
+                if(players.size() == 0) {
+                    onTurnFinish(callback);
+                    return;
+                }
+                LGPlayer player = players.remove(0);
+                getGame().wait(getTimeout(), () -> {
+                    RBouffon.this.onNightTurnTimeout(player);
+                    this.run();
+                }, (currentPlayer, secondsLeft) -> {
+                    return currentPlayer == player ? Translate.get(currentPlayer, "role.generic.yourturn") : Translate.get(currentPlayer, "role.generic.othersturn", getFriendlyName(currentPlayer), secondsLeft);
+                });
+                player.sendMessage("§6" + getTask(player));
+                // player.sendTitle("§6C'est à vous de jouer", "§a"+getTask(), 100);
+                onNightTurn(player, this);
+            }
+        }.run();
+    }
+
+    public boolean hasPlayersLeft() {
+        return needToPlay.size() > 0;
+    }
+
+    @Override
+    protected void onNightTurn(LGPlayer player, Runnable callback) {
+        needToPlay.remove(player);
+        player.showView();
+        player.getCache().set("bouffon_win", true);
+        List<LGPlayer> choosable = getGame().getVote().getVotes(player);
+        StringJoiner sj = new StringJoiner(roleFormat(player, "votelist.seperator"));
+        for(LGPlayer lgp : choosable)
+            if(lgp.getPlayer() != null && lgp.getPlayer() != player)
+                sj.add(lgp.getName());
+
+        player.sendRoleFormat(this, "votelist", sj, sj.length());
+
+        player.choose((choosen) -> {
+            if(choosen != null) {
+                if(!choosable.contains(choosen))
+                    player.sendRoleFormat(this, "choose.novote", choosen.getName());
+                else if(choosen.isDead())
+                    player.sendRoleFormat(this, "choose.dead", choosen.getName());// fix
+                else {
+                    player.stopChoosing();
+                    player.sendRoleFormat(this, "choose.haunt", choosen.getName());
+                    getGame().kill(choosen, Reason.BOUFFON);
+                    player.hideView();
+                    callback.run();
+                }
+            }
+        }, player);
+    }
+
+    @Override
+    protected void onNightTurnTimeout(LGPlayer player) {
+        player.stopChoosing();
+    }
+
+    @EventHandler
+    public void onPlayerKill(LGPlayerKilledEvent e) {
+        if(e.getKilled().getRole() == this && e.getReason() == Reason.VOTE) {
+            needToPlay.add(e.getKilled());
+            getGame().broadcastFunction(lgp -> roleFormat(lgp, "death.broadcast", getName(lgp)));
+            e.getKilled().sendRoleFormat(this, "death.message");
+        }
+    }
+
+    @EventHandler
+    public void onWin(LGGameEndEvent e) {
+        if(e.getGame() == getGame()) {
+            for(LGPlayer lgp : getGame().getInGame()) {
+                if(lgp.getRole() == this && lgp.getCache().getBoolean("bouffon_win")) {
+                    e.getWinners().add(lgp);
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            getGame().broadcastFunction(lgp -> roleFormat(lgp, "win", getName(lgp)));
+                        }
+                    }.runTaskAsynchronously(MainLg.getInstance());
+                }
+            }
+        }
+    }
 }

@@ -39,7 +39,6 @@ import fr.leomelki.loupgarou.listeners.ChatListener;
 import fr.leomelki.loupgarou.listeners.JoinListener;
 import fr.leomelki.loupgarou.listeners.LoupGarouListener;
 import fr.leomelki.loupgarou.listeners.VoteListener;
-import fr.leomelki.loupgarou.localization.Translate;
 import fr.leomelki.loupgarou.roles.RAnge;
 import fr.leomelki.loupgarou.roles.RAssassin;
 import fr.leomelki.loupgarou.roles.RBouffon;
@@ -90,7 +89,6 @@ public class MainLg extends JavaPlugin {
             config.set("spawns", new ArrayList<List<Double>>());
             for(String role : roles.keySet())// Nombre de participant pour chaque rôle
                 config.set("role." + role, 1);
-            config.set("locale", "fr-fr");
             saveConfig();
         }
         loadConfig();
@@ -392,7 +390,6 @@ public class MainLg extends JavaPlugin {
         for(String role : roles.keySet())
             players += getConfig().getInt("role." + role);
         currentGame = new LGGame(players);
-        Translate.setLocale(getConfig().getString("locale"));
     }
 
     @Override

@@ -41,7 +41,7 @@ public class RAnge extends Role {
             vote = true;
             for(LGPlayer lgp : getPlayers())
                 if(!lgp.isDead())
-                    lgp.sendMessage("§9§oFais en sorte que les autres votent contre toi !");
+                    lgp.sendRoleFormat(this, "reminder");
         }
     }
 
@@ -61,7 +61,7 @@ public class RAnge extends Role {
                     getGame().getRoles().add(villageois = new RVillageois(getGame()));
 
                 for(LGPlayer lgp : getPlayers()) {
-                    lgp.sendMessage("§4§oTu as échoué, tu deviens §a§l§oVillageois§4§o...");
+                    lgp.sendRoleFormat(this, "failed");
                     lgp.setRole(villageois);
                     villageois.join(lgp);
                 }

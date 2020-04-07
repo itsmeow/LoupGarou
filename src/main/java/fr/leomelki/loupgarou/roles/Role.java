@@ -1,6 +1,7 @@
 package fr.leomelki.loupgarou.roles;
 
 import java.util.ArrayList;
+import java.util.function.Function;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -33,28 +34,28 @@ public abstract class Role implements Listener {
             waitedPlayers = config.getInt(roleConfigName);
     }
 
-    public final String getName() {
-        return Translate.getRaw("role." + roleConfigName + ".name");
+    public String getName(LGPlayer player) {
+        return roleFormat(player, "name");
     }
 
-    public final String getFriendlyName() {
-        return Translate.getFormatted("role.friendlyname", getName());
+    public String getFriendlyName(LGPlayer player) {
+        return Translate.get(player, "role.generic.friendlyname", getName(player));
     }
 
-    public final String getShortDescription() {
-        return Translate.getRaw("role." + roleConfigName + ".shortdesc");
+    public String getShortDescription(LGPlayer player) {
+        return roleFormat(player, "shortdesc");
     }
 
-    public final String getDescription() {
-        return Translate.getRaw("role." + roleConfigName + ".desc");
+    public String getDescription(LGPlayer player) {
+        return roleFormat(player, "desc");
     }
 
-    public final String getTask() {
-        return Translate.getRaw("role." + roleConfigName + ".task");
+    public String getTask(LGPlayer player) {
+        return roleFormat(player, "task");
     }
 
-    public final String getBroadcastedTask() {
-        return Translate.getRaw("role." + roleConfigName + ".taskbroadcast");
+    public String getBroadcastedTask(LGPlayer player) {
+        return roleFormat(player, "taskbroadcast", getName(player));
     }
 
     public RoleType getType(LGPlayer lgp) {
@@ -99,9 +100,9 @@ public abstract class Role implements Listener {
                     }
                     this.run();
                 }, (currentPlayer, secondsLeft) -> {
-                    return currentPlayer == player ? Translate.getRaw("role.yourturn") : Translate.getFormatted("role.othersturn", getFriendlyName(), secondsLeft);
+                    return currentPlayer == player ? Translate.get(currentPlayer, "role.generic.yourturn") : Translate.get(currentPlayer, "role.generic.othersturn", getFriendlyName(currentPlayer), secondsLeft);
                 });
-                player.sendMessage("§6" + getTask());
+                player.sendMessage("§6" + getTask(player));
                 // player.sendTitle("§6C'est à vous de jouer", "§a"+getTask(), 100);
                 onNightTurn(player, this);
             }
@@ -109,15 +110,15 @@ public abstract class Role implements Listener {
     }
 
     public void join(LGPlayer player, boolean sendMessage) {
-        System.out.println(player.getName() + " -> " + getName());
+        System.out.println(player.getName() + " -> " + getName(player));
         players.add(player);
         if(player.getRole() == null)
             player.setRole(this);
         waitedPlayers--;
         if(sendMessage) {
-            player.sendTitle(Translate.getFormatted("role.jointitle", getName()), "§e" + getShortDescription(), 200);
-            player.sendMessage(Translate.getFormatted("role.joinmessage", getName()));
-            player.sendMessage(Translate.getFormatted("role.joindescmessage", getDescription()));
+            player.sendTitle(Translate.get(player, "role.generic.jointitle", getName(player)), "§e" + getShortDescription(player), 200);
+            player.sendMessage(Translate.get(player, "role.generic.joinmessage", getName(player)));
+            player.sendMessage(Translate.get(player, "role.generic.joindescmessage", getDescription(player)));
         }
     }
 
@@ -148,4 +149,20 @@ public abstract class Role implements Listener {
             return -1;
         }
     }// En combientième ce rôle doit être appellé
+
+    public String roleFormat(LGPlayer player, String key) {
+        return Translate.get(player, "role." + roleConfigName + "." + key);
+    }
+
+    public String roleFormat(LGPlayer player, String key, Object... args) {
+        return Translate.get(player, "role." + roleConfigName + "." + key, args);
+    }
+
+    public Function<LGPlayer, String> roleFormat(String key) {
+        return lgp -> roleFormat(lgp, key);
+    }
+
+    public Function<LGPlayer, String> roleFormat(String key, Object... args) {
+        return lgp -> roleFormat(lgp, key, args);
+    }
 }

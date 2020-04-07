@@ -24,30 +24,6 @@ public class RGarde extends Role{
 	public RoleWinType getWinType() {
 		return RoleWinType.VILLAGE;
 	}
-	@Override
-	public String getName() {
-		return "§a§lGarde";
-	}
-	@Override
-	public String getFriendlyName() {
-		return "du "+getName();
-	}
-	@Override
-	public String getShortDescription() {
-		return "Tu gagnes avec le §a§lVillage";
-	}
-	@Override
-	public String getDescription() {
-		return "Tu gagnes avec le §a§lVillage§f. Chaque nuit, tu peux te protéger toi ou quelqu'un d'autre des attaques §c§lhostiles§f. Tu ne peux pas protéger deux fois d’affilé la même personne.";
-	}
-	@Override
-	public String getTask() {
-		return "Choisis un joueur à protéger.";
-	}
-	@Override
-	public String getBroadcastedTask() {
-		return "Le "+getName()+"§9 choisit un joueur à protéger.";
-	}
 	
 	@Override
 	public int getTimeout() {
@@ -65,16 +41,16 @@ public class RGarde extends Role{
 					LGPlayer lastProtected = player.getCache().get("garde_lastProtected");
 					if(choosen == lastProtected) {
 						if(lastProtected == player)
-							player.sendMessage("§4§oTu t'es déjà protégé la nuit dernière.");
+							player.sendRoleFormat(RGarde.this, "protect.repeat.self");
 						else
-							player.sendMessage("§4§oTu as déjà protégé §7§l§o"+lastProtected.getName()+"§4§o la nuit dernière.");
+							player.sendRoleFormat(RGarde.this, "protect.repeat.other", lastProtected.getName());
 					}  else {
 						if(choosen == player) {
-							player.sendMessage("§6Tu décides de te protéger toi-même cette nuit.");
-							player.sendActionBarMessage("§9Tu seras protégé.");
+							player.sendRoleFormat(RGarde.this, "protect.self.message");
+							player.sendActionBarRoleFormat(RGarde.this, "protect.self.actionbar");
 						} else {
-							player.sendMessage("§6Tu vas protéger §7§l"+choosen.getName()+"§6 cette nuit.");
-							player.sendActionBarMessage("§7§l"+choosen.getName()+"§9 sera protégé.");
+							player.sendRoleFormat(RGarde.this, "protect.other.message", choosen.getName());
+							player.sendActionBarRoleFormat(RGarde.this, "protect.other.actionbar", choosen.getName());
 						}
 						choosen.getCache().set("garde_protected", true);
 						player.getCache().set("garde_lastProtected", choosen);

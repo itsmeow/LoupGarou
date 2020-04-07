@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.StringJoiner;
+import java.util.function.Function;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -150,7 +151,6 @@ public class LGVote {
                         VariousUtils.setWarning(player.getPlayer(), false);
 
                 for(int i = 0; i < choosable.size(); i++) {
-                    LGPlayer lgp = choosable.get(i);
                     showArrow(mayor, null, -mayor.getPlayer().getEntityId() - i);
                 }
                 // Choix au hasard d'un joueur si personne n'a �t� d�sign�
@@ -173,7 +173,6 @@ public class LGVote {
                                     VariousUtils.setWarning(player.getPlayer(), false);
 
                             for(int i = 0; i < choosable.size(); i++) {
-                                LGPlayer lgp = choosable.get(i);
                                 showArrow(mayor, null, -mayor.getPlayer().getEntityId() - i);
                             }
                             game.cancelWait();
@@ -202,6 +201,16 @@ public class LGVote {
     }
 
     public void vote(LGPlayer voter, LGPlayer voted) {
+        boolean changeVote = runVote(voter, voted);
+        sendVoteMessages(lg -> voter.getName(), voter, voted, changeVote);
+    }
+    
+    public void voteNamed(Function<LGPlayer, String> voterName, LGPlayer voter, LGPlayer voted) {
+        boolean changeVote = runVote(voter, voted);
+        sendVoteMessages(voterName, voter, voted, changeVote);
+    }
+    
+    private boolean runVote(LGPlayer voter, LGPlayer voted) {
         if(voted == voter.getCache().get("vote"))
             voted = null;
 
@@ -214,7 +223,6 @@ public class LGVote {
             votesSize = 999;
             game.wait(littleTimeout, initialTimeout, this::end, generator);
         }
-        String italic = game.isDay() ? "" : "�o";
         boolean changeVote = false;
         if(voter.getCache().has("vote")) {// On enl�ve l'ancien vote
             LGPlayer devoted = voter.getCache().get("vote");
@@ -232,7 +240,6 @@ public class LGVote {
         }
 
         if(voted != null) {// Si il vient de voter, on ajoute le nouveau vote
-            // voter.sendTitle("", "�7Tu as vot� pour �7�l"+voted.getName(), 40);
             if(votes.containsKey(voted))
                 votes.get(voted).add(voter);
             else
@@ -240,26 +247,33 @@ public class LGVote {
             voter.getCache().set("vote", voted);
             updateVotes(voted);
         }
-
         if(voter.getPlayer() != null) {
             showVoting(voter, voted);
-            String message;
+        }
+        return changeVote;
+    }
+    
+    private void sendVoteMessages(Function<LGPlayer, String> broadcastVoterName, LGPlayer voter, LGPlayer voted, boolean changeVote) {
+        if(voter.getPlayer() != null) {
+            String key;
             if(voted != null) {
                 if(changeVote) {
-                    message = "�7�l" + voter.getName() + "�6 a chang� son vote pour �7�l" + voted.getName() + "�6.";
-                    voter.sendMessage("�6Tu as chang� de vote pour �7�l" + voted.getName() + "�6.");
+                    key = "voting.broadcast.changevote";
+                    voter.sendFormat("voting.message.changevote");
                 } else {
-                    message = "�7�l" + voter.getName() + "�6 a vot� pour �7�l" + voted.getName() + "�6.";
-                    voter.sendMessage("�6Tu as vot� pour �7�l" + voted.getName() + "�6.");
+                    key = "voting.broadcast.vote";
+                    voter.sendFormat("voting.message.vote");
                 }
             } else {
-                message = "�7�l" + voter.getName() + "�6 a annul� son vote.";
-                voter.sendMessage("�6Tu as annul� ton vote.");
+                key = "voting.broadcast.cancel";
+                voter.sendFormat("voting.message.cancel");
             }
 
-            for(LGPlayer player : viewers)
-                if(player != voter)
-                    player.sendMessage(message);
+            for(LGPlayer player : viewers) {
+                if(player != voter) {
+                    player.sendFormat(key, broadcastVoterName.apply(player), voted.getName());
+                }
+            }
         }
     }
 

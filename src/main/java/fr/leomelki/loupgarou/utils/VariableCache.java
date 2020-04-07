@@ -17,10 +17,12 @@ public class VariableCache {
 	public boolean has(String key) {
 		return cache.containsKey(key);
 	}
-	public <T> T get(String key) {
+	@SuppressWarnings("unchecked")
+    public <T> T get(String key) {
 		return (T)cache.get(key);
 	}
-	public <T> T remove(String key) {
+	@SuppressWarnings("unchecked")
+    public <T> T remove(String key) {
 		return (T)cache.remove(key);
 	}
 	public void reset() {

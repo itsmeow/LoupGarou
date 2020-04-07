@@ -18,150 +18,128 @@ import fr.leomelki.loupgarou.events.LGEndCheckEvent;
 import fr.leomelki.loupgarou.events.LGGameEndEvent;
 import fr.leomelki.loupgarou.events.LGPlayerKilledEvent.Reason;
 
-public class RLoupGarouBlanc extends Role{
-	private static ItemStack skip;
-	static {
-		skip = new ItemStack(Material.SPIDER_EYE);
-		ItemMeta meta = skip.getItemMeta();
-		meta.setDisplayName("§7§lNe rien faire");
-		meta.setLore(Arrays.asList("§8Passez votre tour"));
-		skip.setItemMeta(meta);
-	}
+public class RLoupGarouBlanc extends Role {
 
-	public RLoupGarouBlanc(LGGame game) {
-		super(game);
-	}
+    private Runnable callback;
 
-	@Override
-	public String getName() {
-		return "§c§lLoup Blanc";
-	}
+    public RLoupGarouBlanc(LGGame game) {
+        super(game);
+    }
 
-	@Override
-	public String getFriendlyName() {
-		return "du "+getName();
-	}
+    @Override
+    public RoleType getType() {
+        return RoleType.LOUP_GAROU;
+    }
 
-	@Override
-	public String getShortDescription() {
-		return "Tu gagnes §7§lSEUL";
-	}
+    @Override
+    public RoleWinType getWinType() {
+        return RoleWinType.SEUL;
+    }
 
-	@Override
-	public String getDescription() {
-		return "Tu gagnes §7§lSEUL§f. Les autres §c§lLoups§f croient que tu es un loup normal, mais une nuit sur deux, tu peux assassiner l'un d'eux au choix.";
-	}
+    @Override
+    public int getTimeout() {
+        return 15;
+    }
 
-	@Override
-	public String getTask() {
-		return "Tu peux choisir un §c§lLoup-Garou§6 à éliminer, ou te rendormir.";
-	}
+    @Override
+    public boolean hasPlayersLeft() {
+        return super.hasPlayersLeft() && getGame().getNight() % 2 == 0;
+    }
 
-	@Override
-	public String getBroadcastedTask() {
-		return "Le "+getName()+"§9 pourrait faire un ravage cette nuit...";
-	}
-	@Override
-	public RoleType getType() {
-		return RoleType.LOUP_GAROU;
-	}
-	@Override
-	public RoleWinType getWinType() {
-		return RoleWinType.SEUL;
-	}
+    private ItemStack getSkipItem(LGPlayer player) {
+        ItemStack skip = new ItemStack(Material.SPIDER_EYE);
+        ItemMeta meta = skip.getItemMeta();
+        meta.setDisplayName(roleFormat(player, "gui.skip.name"));
+        meta.setLore(Arrays.asList(roleFormat(player, "gui.skip.lore").split("\n")));
+        skip.setItemMeta(meta);
+        return skip;
+    }
 
-	@Override
-	public int getTimeout() {
-		return 15;
-	}
-	
-	@Override
-	public boolean hasPlayersLeft() {
-		return super.hasPlayersLeft() && getGame().getNight()%2 == 0;
-	}
-	Runnable callback;
-	@Override
-	protected void onNightTurn(LGPlayer player, Runnable callback) {
-		this.callback = callback;
-		RLoupGarou lg_ = null;
-		for(Role role : getGame().getRoles())
-			if(role instanceof RLoupGarou) {
-				lg_ = (RLoupGarou)role;
-				break;
-			}
-		
-		RLoupGarou lg = lg_;
-		player.showView();
-		player.getPlayer().getInventory().setItem(8, skip);
-		player.choose(new LGChooseCallback() {
-			@Override
-			public void callback(LGPlayer choosen) {
-				if(choosen != null && choosen != player) {
-					if(!lg.getPlayers().contains(choosen)) {
-						player.sendMessage("§7§l"+choosen.getName()+"§4 n'est pas un Loup-Garou.");
-						return;
-					}
-					player.sendActionBarMessage("§e§l"+choosen.getName()+"§6 va mourir cette nuit");
-					player.sendMessage("§6Tu as choisi de dévorer §7§l"+choosen.getName()+"§6.");
-					player.getPlayer().getInventory().setItem(8, null);
-					player.getPlayer().updateInventory();
-					getGame().kill(choosen, Reason.LOUP_BLANC);
-					player.stopChoosing();
-					player.hideView();
-					callback.run();
-				}
-			}
-		});
-	}
-	@EventHandler
-	public void onClick(PlayerInteractEvent e) {
-		Player p = e.getPlayer();
-		LGPlayer player = LGPlayer.thePlayer(p);
-		if(e.getItem() != null && e.getItem().getType() == Material.SPIDER_EYE && player.getRole() == this) {
-			player.stopChoosing();
-			p.getInventory().setItem(8, null);
-			p.updateInventory();
-			player.hideView();
-			player.sendMessage("§6Tu n'as tué personne.");
-			callback.run();
-		}
-	}
-	@Override
-	protected void onNightTurnTimeout(LGPlayer player) {
-		player.stopChoosing();
-		player.getPlayer().getInventory().setItem(8, null);
-		player.getPlayer().updateInventory();
-		player.hideView();
-		player.sendMessage("§6Tu n'as tué personne.");
-	}
-	
-	RLoupGarou lg;
-	@Override
-	public void join(LGPlayer player, boolean sendMessage) {
-		super.join(player, sendMessage);
-		for(Role role : getGame().getRoles())
-			if(role instanceof RLoupGarou)
-				(lg = (RLoupGarou) role).join(player, false);
-	}
-	
-	@EventHandler
-	public void onEndgameCheck(LGEndCheckEvent e) {
-		if(e.getGame() == getGame() && e.getWinType() == LGWinType.SOLO) {
-			if(getPlayers().size() > 0) {
-				if(lg.getPlayers().size() > getPlayers().size())
-					e.setWinType(LGWinType.NONE);
-				else if(lg.getPlayers().size() == getPlayers().size())
-					e.setWinType(LGWinType.LOUPGAROUBLANC);
-			}
-		}
-	}
-	
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onEndGame(LGGameEndEvent e) {
-		if(e.getWinType() == LGWinType.LOUPGAROUBLANC) {
-			e.getWinners().clear();
-			e.getWinners().addAll(getPlayers());
-		}
-	}
-	
+    @Override
+    protected void onNightTurn(LGPlayer player, Runnable callback) {
+        this.callback = callback;
+        RLoupGarou lg_ = null;
+        for(Role role : getGame().getRoles())
+            if(role instanceof RLoupGarou) {
+                lg_ = (RLoupGarou) role;
+                break;
+            }
+
+        RLoupGarou lg = lg_;
+        player.showView();
+        player.getPlayer().getInventory().setItem(8, getSkipItem(player));
+        player.choose(new LGChooseCallback() {
+            @Override
+            public void callback(LGPlayer choosen) {
+                if(choosen != null && choosen != player) {
+                    if(!lg.getPlayers().contains(choosen)) {
+                        player.sendRoleFormat(RLoupGarouBlanc.this, "choose.notlg", choosen.getName());
+                        return;
+                    }
+                    player.sendActionBarRoleFormat(RLoupGarouBlanc.this, "choose.message", choosen.getName());
+                    player.sendRoleFormat(RLoupGarouBlanc.this, "choose.actionbar", choosen.getName());
+                    player.getPlayer().getInventory().setItem(8, null);
+                    player.getPlayer().updateInventory();
+                    getGame().kill(choosen, Reason.LOUP_BLANC);
+                    player.stopChoosing();
+                    player.hideView();
+                    callback.run();
+                }
+            }
+        });
+    }
+
+    @EventHandler
+    public void onClick(PlayerInteractEvent e) {
+        Player p = e.getPlayer();
+        LGPlayer player = LGPlayer.thePlayer(p);
+        if(e.getItem() != null && e.getItem().getType() == Material.SPIDER_EYE && player.getRole() == this) {
+            player.stopChoosing();
+            p.getInventory().setItem(8, null);
+            p.updateInventory();
+            player.hideView();
+            player.sendRoleFormat(this, "pass");
+            callback.run();
+        }
+    }
+
+    @Override
+    protected void onNightTurnTimeout(LGPlayer player) {
+        player.stopChoosing();
+        player.getPlayer().getInventory().setItem(8, null);
+        player.getPlayer().updateInventory();
+        player.hideView();
+        player.sendRoleFormat(this, "pass");
+    }
+
+    RLoupGarou lg;
+
+    @Override
+    public void join(LGPlayer player, boolean sendMessage) {
+        super.join(player, sendMessage);
+        for(Role role : getGame().getRoles())
+            if(role instanceof RLoupGarou)
+                (lg = (RLoupGarou) role).join(player, false);
+    }
+
+    @EventHandler
+    public void onEndgameCheck(LGEndCheckEvent e) {
+        if(e.getGame() == getGame() && e.getWinType() == LGWinType.SOLO) {
+            if(getPlayers().size() > 0) {
+                if(lg.getPlayers().size() > getPlayers().size())
+                    e.setWinType(LGWinType.NONE);
+                else if(lg.getPlayers().size() == getPlayers().size())
+                    e.setWinType(LGWinType.LOUPGAROUBLANC);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onEndGame(LGGameEndEvent e) {
+        if(e.getWinType() == LGWinType.LOUPGAROUBLANC) {
+            e.getWinners().clear();
+            e.getWinners().addAll(getPlayers());
+        }
+    }
+
 }

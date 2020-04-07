@@ -29,6 +29,7 @@ import fr.leomelki.loupgarou.MainLg;
 import fr.leomelki.loupgarou.classes.chat.LGChat;
 import fr.leomelki.loupgarou.classes.chat.LGChat.LGChatCallback;
 import fr.leomelki.loupgarou.classes.chat.LGNoChat;
+import fr.leomelki.loupgarou.localization.Translate;
 import fr.leomelki.loupgarou.roles.Role;
 import fr.leomelki.loupgarou.roles.RoleType;
 import fr.leomelki.loupgarou.roles.RoleWinType;
@@ -95,9 +96,33 @@ public class LGPlayer {
             chat.sendPacket(getPlayer());
         }
     }
+    public void sendActionBarFormat(String key) {
+        sendActionBarMessage(Translate.get(this, key));
+    }
+    public void sendActionBarFormat(String key, Object... args) {
+        sendActionBarMessage(Translate.get(this, key, args));
+    }
+    public void sendActionBarRoleFormat(Role role, String key) {
+        sendActionBarMessage(role.roleFormat(this, key));
+    }
+    public void sendActionBarRoleFormat(Role role, String key, Object... args) {
+        sendActionBarMessage(role.roleFormat(this, key, args));
+    }
     public void sendMessage(String msg) {
         if(this.player != null)
             getPlayer().sendMessage(MainLg.getPrefix()+msg);
+    }
+    public void sendFormat(String key) {
+        sendMessage(Translate.get(this, key));
+    }
+    public void sendFormat(String key, Object... args) {
+        sendMessage(Translate.get(this, key, args));
+    }
+    public void sendRoleFormat(Role role, String key) {
+        sendMessage(role.roleFormat(this, key));
+    }
+    public void sendRoleFormat(Role role, String key, Object... args) {
+        sendMessage(role.roleFormat(this, key, args));
     }
     public void sendTitle(String title, String subTitle, int stay) {
         if(this.player != null) {
@@ -380,5 +405,9 @@ public class LGPlayer {
     @Override
     public String toString() {
         return super.toString()+" ("+getName()+")";
+    }
+
+    public String getLocale() {
+        return "fr-fr";
     }
 }

@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.function.Function;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -57,6 +58,7 @@ import fr.leomelki.loupgarou.events.LGRoleTurnEndEvent;
 import fr.leomelki.loupgarou.events.LGSkinLoadEvent;
 import fr.leomelki.loupgarou.events.LGVoteEvent;
 import fr.leomelki.loupgarou.events.LGVoteLeaderChange;
+import fr.leomelki.loupgarou.localization.Translate;
 import fr.leomelki.loupgarou.roles.RChienLoupLG;
 import fr.leomelki.loupgarou.roles.REnfantSauvageLG;
 import fr.leomelki.loupgarou.roles.Role;
@@ -112,6 +114,26 @@ public class LGGame implements Listener{
 		for(LGPlayer lgp : inGame)
 			lgp.sendMessage(msg);
 	}
+	public void broadcastFormat(String key) {
+	    for(LGPlayer lgp : inGame)
+            lgp.sendMessage(Translate.get(lgp, key));
+    }
+	public void broadcastFormat(String key, Object... args) {
+	    for(LGPlayer lgp : inGame)
+            lgp.sendMessage(Translate.get(lgp, key, args));
+    }
+	public void broadcastRoleFormat(Role role, String key) {
+	    for(LGPlayer lgp : inGame)
+            lgp.sendMessage(role.roleFormat(lgp, key));
+    }
+    public void broadcastRoleFormat(Role role, String key, Object... args) {
+        for(LGPlayer lgp : inGame)
+            lgp.sendMessage(role.roleFormat(lgp, key, args));
+    }
+    public void broadcastFunction(Function<LGPlayer, String> func) {
+        for(LGPlayer lgp : inGame)
+            lgp.sendMessage(func.apply(lgp));
+    }
 	public void broadcastSpacer() {
 		for(LGPlayer lgp : inGame)
 			lgp.getPlayer().sendMessage("\n");
@@ -283,7 +305,8 @@ public class LGGame implements Listener{
 		List<?> original = MainLg.getInstance().getConfig().getList("spawns");
 		List<Object> list = new ArrayList<Object>(original);
 		for(LGPlayer lgp : getInGame()) {
-			List<Double> location = (List<Double>) list.remove(random.nextInt(list.size()));
+			@SuppressWarnings("unchecked")
+            List<Double> location = (List<Double>) list.remove(random.nextInt(list.size()));
 			Player p = lgp.getPlayer();
 			p.setWalkSpeed(0);
 			p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 99999, 180, false, false));
@@ -341,7 +364,8 @@ public class LGGame implements Listener{
 	private void _start() {
 		broadcastMessage("§8§oDébut de la partie...");
 		//Give roles...
-		ArrayList<LGPlayer> toGive = (ArrayList<LGPlayer>) inGame.clone();
+		@SuppressWarnings("unchecked")
+        ArrayList<LGPlayer> toGive = (ArrayList<LGPlayer>) inGame.clone();
 		started = false;
 		for(Role role : getRoles())
 			while(role.getWaitedPlayers() > 0) {
@@ -389,7 +413,7 @@ public class LGGame implements Listener{
 					lgp.getScoreboard().getLine(i).delete();
 			}else
 				for(LGPlayer lgp : getInGame())
-					lgp.getScoreboard().getLine(i).setDisplayName("§e"+role.getNumber()+" §6- §e"+role.getRole().getName().replace("§l", ""));
+					lgp.getScoreboard().getLine(i).setDisplayName("§e"+role.getNumber()+" §6- §e"+role.getRole().getName(lgp).replace("§l", ""));
 		}
 		for(int i = 15;i>=roles.size();i--)
 			for(LGPlayer lgp : getInGame())
@@ -473,7 +497,8 @@ public class LGGame implements Listener{
 		for(LGPlayer player : getInGame())
 			player.hideView();
 
-		ArrayList<Role> roles = (ArrayList<Role>) getRoles().clone();
+		@SuppressWarnings("unchecked")
+        ArrayList<Role> roles = (ArrayList<Role>) getRoles().clone();
 		new Runnable() {
 			Role lastRole;
 			
@@ -495,7 +520,7 @@ public class LGGame implements Listener{
 						if(role.getTurnOrder() == -1 || !role.hasPlayersLeft())
 							this.run();
 						else {
-							broadcastMessage("§9"+role.getBroadcastedTask());
+							broadcastFunction(lgp -> "§9"+role.getBroadcastedTask(lgp));
 							role.onNightTurn(run);
 						}
 					}

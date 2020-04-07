@@ -140,9 +140,9 @@ public class WrapperPlayServerPosition extends AbstractPacket {
         X_ROT;
     }
 
+    @SuppressWarnings("deprecation")
     private StructureModifier<Set<PlayerTeleportFlag>> getFlagsModifier() {
-        return handle.getModifier().withType(Set.class, BukkitConverters.getSetConverter(FLAGS_CLASS,
-                EnumWrappers.getGenericConverter(PlayerTeleportFlag.class)));
+        return handle.getModifier().withType(Set.class, BukkitConverters.getSetConverter(FLAGS_CLASS, EnumWrappers.getGenericConverter(PlayerTeleportFlag.class)));
     }
 
     public Set<PlayerTeleportFlag> getFlags() {

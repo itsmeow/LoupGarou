@@ -1,23 +1,12 @@
 package fr.leomelki.loupgarou.classes;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.StringJoiner;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-
-import fr.leomelki.loupgarou.events.LGCustomItemChangeEvent;
-import fr.leomelki.loupgarou.roles.Role;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@SuppressWarnings("unchecked")
 public class LGCustomItems {
-	static HashMap<Class<? extends Role>, HashMap<String, Material>> mappings = new HashMap<Class<? extends Role>, HashMap<String,Material>>();
+	/*static HashMap<Class<? extends Role>, HashMap<String, Material>> mappings = new HashMap<Class<? extends Role>, HashMap<String,Material>>();
 	static {
 		JSONParser parser = new JSONParser();
 		try {
@@ -55,7 +44,7 @@ public class LGCustomItems {
 	}
 	public static Material getItem(LGPlayer player) {
 		return getItem(player, new ArrayList<String>());
-	}
+	}*/
 	
 	public static void updateItem(LGPlayer lgp) {
 		//lgp.getPlayer().getInventory().setItemInOffHand(new ItemStack(getItem(lgp)));

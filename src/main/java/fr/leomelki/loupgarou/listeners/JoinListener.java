@@ -1,7 +1,5 @@
 package fr.leomelki.loupgarou.listeners;
 
-import java.util.Arrays;
-
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -11,7 +9,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffectType;
 
-import fr.leomelki.com.comphenix.packetwrapper.WrapperPlayServerScoreboardTeam;
 import fr.leomelki.loupgarou.MainLg;
 import fr.leomelki.loupgarou.classes.LGPlayer;
 import fr.leomelki.loupgarou.events.LGPlayerKilledEvent.Reason;
@@ -23,16 +20,6 @@ public class JoinListener implements Listener {
         onJoin(e.getPlayer(), e.getJoinMessage());
         e.setJoinMessage("");
     }
-
-    /*
-     * @EventHandler public void onResoucePack(PlayerResourcePackStatusEvent e) {
-     * if(e.getStatus() == Status.SUCCESSFULLY_LOADED) { Player p = e.getPlayer();
-     * LGPlayer lgp = LGPlayer.thePlayer(p); lgp.showView();
-     * lgp.join(MainLg.getInstance().getCurrentGame()); } else if(e.getStatus() ==
-     * Status.DECLINED || e.getStatus() == Status.FAILED_DOWNLOAD)
-     * e.getPlayer().kickPlayer(MainLg.getPrefix() +
-     * "§cIl vous faut le resourcepack pour jouer ! (" + e.getStatus() + ")"); }
-     */
 
     @EventHandler
     public void onLeave(PlayerQuitEvent e) {
@@ -53,21 +40,22 @@ public class JoinListener implements Listener {
     }
 
     public static void onJoin(Player p, String msg) {
-        WrapperPlayServerScoreboardTeam myTeam = new WrapperPlayServerScoreboardTeam();
-        myTeam.setName(p.getName());
+        // WrapperPlayServerScoreboardTeam myTeam = new
+        // WrapperPlayServerScoreboardTeam();
+        // myTeam.setName(p.getName());
         // myTeam.setPrefix("");
-        myTeam.setPlayers(Arrays.asList(p.getName()));
-        myTeam.setMode(0);
+        // myTeam.setPlayers(Arrays.asList(p.getName()));
+        // myTeam.setMode(0);
         boolean noSpec = p.getGameMode() != GameMode.SPECTATOR;
         for(Player player : Bukkit.getOnlinePlayers()) {
             if(player != p) {
                 if(player.getGameMode() != GameMode.SPECTATOR)
                     player.hidePlayer(p);
-                WrapperPlayServerScoreboardTeam team = new WrapperPlayServerScoreboardTeam();
-                team.setName(player.getName());
+                // WrapperPlayServerScoreboardTeam team = new WrapperPlayServerScoreboardTeam();
+                // team.setName(player.getName());
                 // team.setPrefix("");
-                team.setPlayers(Arrays.asList(player.getName()));
-                team.setMode(0);
+                // team.setPlayers(Arrays.asList(player.getName()));
+                // team.setMode(0);
 
                 // team.sendPacket(p);
                 // myTeam.sendPacket(player);

@@ -117,8 +117,8 @@ public abstract class Role implements Listener {
         waitedPlayers--;
         if(sendMessage) {
             player.sendTitle(Translate.get(player, "role.generic.jointitle", getName(player)), "§e" + getShortDescription(player), 200);
-            player.sendMessage(Translate.get(player, "role.generic.joinmessage", getName(player)));
-            player.sendMessage(Translate.get(player, "role.generic.joindescmessage", getDescription(player)));
+            player.sendFormat("role.generic.joinmessage", getName(player));
+            player.sendFormat("role.generic.joindescmessage", getDescription(player));
         }
     }
 

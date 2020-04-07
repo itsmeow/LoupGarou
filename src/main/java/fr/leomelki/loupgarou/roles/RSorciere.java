@@ -25,36 +25,8 @@ import fr.leomelki.loupgarou.classes.LGPlayer;
 import fr.leomelki.loupgarou.events.LGPlayerKilledEvent.Reason;
 
 public class RSorciere extends Role {
-    private static ItemStack[] items = new ItemStack[4];
-    private static ItemStack cancel;
-    static {
-        {
-            Dye dye = new Dye();
-            dye.setColor(DyeColor.PURPLE);
-            items[0] = dye.toItemStack();
-        }
-        ItemMeta meta = items[0].getItemMeta();
-        meta.setDisplayName("§a§lPotion de vie");
-        meta.setLore(Arrays.asList("§2Sauve la cible des §c§lLoups§2."));
-        items[0].setItemMeta(meta);
-        items[1] = new ItemStack(Material.SPIDER_EYE);
-        meta = items[1].getItemMeta();
-        meta.setDisplayName("§7§lNe rien faire");
-        items[1].setItemMeta(meta);
-        {
-            Dye dye = new Dye();
-            dye.setColor(DyeColor.LIGHT_BLUE);
-            items[2] = dye.toItemStack();
-        }
-        meta = items[2].getItemMeta();
-        meta.setDisplayName("§c§lPotion de mort");
-        meta.setLore(Arrays.asList("§cTue la personne de ton choix."));
-        items[2].setItemMeta(meta);
-        cancel = new ItemStack(Material.SPIDER_EYE);
-        meta = cancel.getItemMeta();
-        meta.setDisplayName("§c§lRevenir au choix des potions");
-        cancel.setItemMeta(meta);
-    }
+
+    private boolean inMenu = false;
 
     public RSorciere(LGGame game) {
         super(game);
@@ -96,39 +68,81 @@ public class RSorciere extends Role {
         closeInventory(player.getPlayer());
         player.getPlayer().updateInventory();
         player.hideView();
-        // player.sendTitle("§cVous n'avez utilisé aucune potion", "§4Vous avez mis trop
-        // de temps à vous décider...", 80);
-        // player.sendMessage("§6Tu n'as rien fait cette nuit.");
     }
 
     private void openInventory(LGPlayer player) {
         inMenu = true;
-        Inventory inventory = Bukkit.createInventory(null, InventoryType.BREWING, sauver == null ? "§7Personne n'a été ciblé" : "§7§l" + sauver.getName() + " §7est ciblé");
-        inventory.setContents(items.clone());// clone au cas où Bukkit prenne directement la liste pour éviter de la modifier
-                                             // avec setItem (jsp)
-        if(sauver == null || player.getCache().getBoolean("witch_used_life"))
-            inventory.setItem(0, null);
-
-        if(sauver != null) {
-            ItemStack head = new ItemStack(Material.ARROW);
-            ItemMeta meta = head.getItemMeta();
-            meta.setDisplayName("§7§l" + sauver.getName() + "§c est ciblé");
-            head.setItemMeta(meta);
-            inventory.setItem(4, head);
-        }
-        if(player.getCache().getBoolean("witch_used_death"))
-            inventory.setItem(2, null);
         player.getPlayer().closeInventory();
-        player.getPlayer().openInventory(inventory);
+        player.getPlayer().openInventory(createInventory(player));
     }
 
-    boolean inMenu = false;
+    private Inventory createInventory(LGPlayer player) {
+        Inventory inventory = Bukkit.createInventory(null, InventoryType.BREWING, sauver == null ? roleFormat(player, "gui.notarget") : roleFormat(player, "gui.target.name", sauver.getName()));
+        ItemStack[] items = new ItemStack[4];
+        if(sauver != null) {
+            if(!player.getCache().getBoolean("witch_used_life")) {
+                items[0] = createLifePotion(player);
+            }
+            items[4] = createTargetItem(player);
+        }
+        items[1] = createNothingItem(player);
+        if(!player.getCache().getBoolean("witch_used_death")) {
+            items[2] = createDeathPotion(player);
+        }
+        inventory.setContents(items);
+        return inventory;
+    }
+
+    private ItemStack createLifePotion(LGPlayer player) {
+        return dye(player, "lifepotion", DyeColor.PURPLE, true);
+    }
+
+    private ItemStack createDeathPotion(LGPlayer player) {
+        return dye(player, "deathpotion", DyeColor.LIGHT_BLUE, true);
+    }
+
+    private ItemStack createNothingItem(LGPlayer player) {
+        return item(player, "nothing", Material.SPIDER_EYE, false);
+    }
+
+    private ItemStack createCancelItem(LGPlayer player) {
+        return item(player, "cancel", Material.SPIDER_EYE, false);
+    }
+
+    private ItemStack createTargetItem(LGPlayer player) {
+        return item(player, "target", Material.ARROW, false);
+    }
+
+    private ItemStack item(LGPlayer player, String name, Material mat, boolean hasLore) {
+        ItemStack stack = new ItemStack(mat);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName(roleFormat(player, "gui." + name + ".name"));
+        if(hasLore) {
+            meta.setLore(Arrays.asList(roleFormat(player, "gui." + name + ".lore").split("\n")));
+        }
+        stack.setItemMeta(meta);
+        return stack;
+    }
+
+    private ItemStack dye(LGPlayer player, String name, DyeColor dyeC, boolean hasLore) {
+        Dye dye = new Dye();
+        dye.setColor(dyeC);
+        ItemStack stack = dye.toItemStack();
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName(roleFormat(player, "gui." + name + ".name"));
+        if(hasLore) {
+            meta.setLore(Arrays.asList(roleFormat(player, "gui." + name + ".lore").split("\n")));
+        }
+        stack.setItemMeta(meta);
+        return stack;
+    }
 
     private void closeInventory(Player p) {
         inMenu = false;
         p.closeInventory();
     }
 
+    @SuppressWarnings("deprecation")
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
         ItemStack item = e.getCurrentItem();
@@ -138,19 +152,19 @@ public class RSorciere extends Role {
         if(lgp.getRole() != this || item == null || item.getItemMeta() == null)
             return;
 
-        if(item.getItemMeta().getDisplayName().equals(items[0].getItemMeta().getDisplayName()) && sauver != null) {// Potion de vie
+        if(item.getType() == Material.INK_SACK && DyeColor.getByData(item.getData().getData()) == DyeColor.PURPLE && sauver != null) {// Potion de vie
             e.setCancelled(true);
             closeInventory(player);
             saveLife(lgp);
-        } else if(item.getItemMeta().getDisplayName().equals(items[1].getItemMeta().getDisplayName())) {// Cancel
+        } else if(item.getType() == Material.SPIDER_EYE) {// Cancel
             e.setCancelled(true);
             closeInventory(player);
-            lgp.sendMessage("§6Tu n'as rien fait cette nuit.");
+            lgp.sendRoleFormat(this, "timeout");
             lgp.hideView();
             callback.run();
-        } else if(item.getItemMeta().getDisplayName().equals(items[2].getItemMeta().getDisplayName())) {// Potion de mort
+        } else if(item.getType() == Material.INK_SACK && DyeColor.getByData(item.getData().getData()) == DyeColor.LIGHT_BLUE) {// Potion de mort
             e.setCancelled(true);
-            player.getInventory().setItem(8, cancel);
+            player.getInventory().setItem(8, createCancelItem(lgp));
             player.updateInventory();
 
             // On le met sur le slot 0 pour éviter un missclick sur la croix
@@ -164,8 +178,9 @@ public class RSorciere extends Role {
                     lgp.stopChoosing();
                     kill(choosen, lgp);
                 }
-            }/* , sauver */);// On peut tuer la personne qui a été tué par les loups (bien que cela ne serve
-                             // à rien)
+            }/* , sauver */);
+            // On peut tuer la personne qui a été tué par les loups (bien que cela ne serve
+            // à rien)
         }
     }
 
@@ -203,8 +218,8 @@ public class RSorciere extends Role {
         player.getPlayer().updateInventory();
         player.getCache().set("witch_used_death", true);
         getGame().kill(choosen, Reason.SORCIERE);
-        player.sendMessage("§6Tu as décidé d'assassiner §7§l" + choosen.getName() + "§6.");
-        player.sendActionBarMessage("§7§l" + choosen.getName() + "§9 a été tué.");
+        player.sendRoleFormat(this, "kill.message", choosen.getName());
+        player.sendActionBarRoleFormat(this, "kill.actionbar", choosen.getName());
         player.hideView();
         callback.run();
     }
@@ -212,8 +227,8 @@ public class RSorciere extends Role {
     private void saveLife(LGPlayer player) {
         player.getCache().set("witch_used_life", true);
         getGame().getDeaths().remove(Reason.LOUP_GAROU, sauver);
-        player.sendMessage("§6Tu as décidé de sauver §7§l" + sauver.getName() + "§6.");
-        player.sendActionBarMessage("§7§l" + sauver.getName() + "§9 a été sauvé.");
+        player.sendRoleFormat(this, "save.message", sauver.getName());
+        player.sendActionBarRoleFormat(this, "save.actionbar", sauver.getName());
         player.hideView();
         callback.run();
     }

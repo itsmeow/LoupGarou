@@ -32,10 +32,8 @@ public class RVoyante extends Role {
             @Override
             public void callback(LGPlayer choosen) {
                 if(choosen != null && choosen != player) {
-                    // player.sendTitle("§6Vous avez regardé un rôle",
-                    // "§e§l"+choosen.getName()+"§6§l est §e§l"+choosen.getRole().getName(), 5*20);
-                    player.sendActionBarMessage("§e§l" + choosen.getName() + "§6 est §e§l" + choosen.getRole().getName());
-                    player.sendMessage("§6Tu découvres que §7§l" + choosen.getName() + "§6 est " + choosen.getRole().getName() + "§6.");
+                    player.sendActionBarRoleFormat(RVoyante.this, "reveal.actionbar", choosen.getName(), choosen.getRole().getName(player));
+                    player.sendRoleFormat(RVoyante.this, "reveal.message", choosen.getName(), choosen.getRole().getName(player));
                     player.stopChoosing();
                     player.hideView();
                     callback.run();
@@ -48,8 +46,5 @@ public class RVoyante extends Role {
     protected void onNightTurnTimeout(LGPlayer player) {
         player.stopChoosing();
         player.hideView();
-        // player.sendTitle("§cVous n'avez regardé aucun rôle", "§4Vous avez mis trop de
-        // temps à vous décider...", 80);
-        // player.sendMessage("§cVous n'avez pas utilisé votre pouvoir cette nuit.");
     }
 }

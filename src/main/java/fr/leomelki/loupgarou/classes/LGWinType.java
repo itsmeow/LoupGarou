@@ -14,7 +14,7 @@ public enum LGWinType {
     PYROMANE,
     NONE;
 
-    public String getMessage() {
-        return Translate.get("wintype." + this.name().toLowerCase());
+    public String getMessage(LGPlayer player) {
+        return Translate.get(player, "wintype." + this.name().toLowerCase());
     }
 }

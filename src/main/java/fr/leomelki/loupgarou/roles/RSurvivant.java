@@ -25,6 +25,9 @@ import fr.leomelki.loupgarou.events.LGPreDayStartEvent;
 import fr.leomelki.loupgarou.utils.VariableCache;
 
 public class RSurvivant extends Role {
+
+    private Runnable callback;
+
     public RSurvivant(LGGame game) {
         super(game);
     }
@@ -46,34 +49,42 @@ public class RSurvivant extends Role {
 
     boolean inMenu;
 
-    public void openInventory(Player player) {
+    public void openInventory(LGPlayer player) {
         inMenu = true;
-        Inventory inventory = Bukkit.createInventory(null, 9, "§7Veux-tu te protéger ?");
+        player.getPlayer().closeInventory();
+        player.getPlayer().openInventory(createInventory(player));
+    }
+
+    private Inventory createInventory(LGPlayer player) {
+        Inventory inventory = Bukkit.createInventory(null, 9, roleFormat(player, "gui.title"));
         ItemStack[] items = new ItemStack[9];
-        VariableCache cache = LGPlayer.thePlayer(player).getCache();
+        VariableCache cache = player.getCache();
         if(cache.<Integer>get("survivant_left") > 0) {
-            items[3] = new ItemStack(Material.SPIDER_EYE);
-            ItemMeta meta = items[3].getItemMeta();
-            meta.setDisplayName("§7§lNe rien faire");
-            meta.setLore(Arrays.asList("§8Passez votre tour"));
-            items[3].setItemMeta(meta);
-            items[5] = new ItemStack(Material.GOLD_NUGGET);
-            meta = items[5].getItemMeta();
-            meta.setDisplayName("§2§lSe protéger (§6§l" + cache.<Integer>get("survivant_left") + "§2§l restant)");
-            meta.setLore(Arrays.asList(
-            "§8Tu ne pourras pas être tué par",
-            "§8  les §c§lLoups§8 cette nuit."));
-            items[5].setItemMeta(meta);
+            items[3] = item(player, "nothing", Material.SPIDER_EYE, true);
+            {
+                items[5] = new ItemStack(Material.GOLD_NUGGET);
+                ItemMeta meta = items[5].getItemMeta();
+                // special handling case for cache
+                meta.setDisplayName(roleFormat(player, "gui.protect.name", cache.<Integer>get("survivant_left")));
+                meta.setLore(Arrays.asList(roleFormat(player, "gui.protect.lore").split("\n")));
+                items[5].setItemMeta(meta);
+            }
         } else {
-            items[4] = new ItemStack(Material.SPIDER_EYE);
-            ItemMeta meta = items[4].getItemMeta();
-            meta.setDisplayName("§7§lNe rien faire");
-            meta.setLore(Arrays.asList("§8Passez votre tour"));
-            items[4].setItemMeta(meta);
+            items[4] = item(player, "nothing", Material.SPIDER_EYE, true);
         }
-        player.closeInventory();
         inventory.setContents(items);
-        player.openInventory(inventory);
+        return inventory;
+    }
+
+    private ItemStack item(LGPlayer player, String name, Material mat, boolean hasLore) {
+        ItemStack stack = new ItemStack(mat);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName(roleFormat(player, "gui." + name + ".name"));
+        if(hasLore) {
+            meta.setLore(Arrays.asList(roleFormat(player, "gui." + name + ".lore").split("\n")));
+        }
+        stack.setItemMeta(meta);
+        return stack;
     }
 
     @Override
@@ -82,20 +93,18 @@ public class RSurvivant extends Role {
         player.getCache().set("survivant_left", 2);
     }
 
-    Runnable callback;
-
     @Override
     protected void onNightTurn(LGPlayer player, Runnable callback) {
         player.showView();
         this.callback = callback;
-        openInventory(player.getPlayer());
+        openInventory(player);
     }
 
     @Override
     protected void onNightTurnTimeout(LGPlayer player) {
         player.hideView();
         closeInventory(player.getPlayer());
-        player.sendMessage("§4§oTu es sans défense...");
+        player.sendRoleFormat(this, "timeout");
     }
 
     private void closeInventory(Player p) {
@@ -114,15 +123,15 @@ public class RSurvivant extends Role {
 
         if(item.getType() == Material.SPIDER_EYE) {
             e.setCancelled(true);
-            lgp.sendMessage("§4§oTu es sans défense...");
+            lgp.sendRoleFormat(this, "timeout");
             closeInventory(player);
             lgp.hideView();
             callback.run();
         } else if(item.getType() == Material.GOLD_NUGGET) {
             e.setCancelled(true);
             closeInventory(player);
-            lgp.sendActionBarMessage("§9§lTu as décidé de te protéger.");
-            lgp.sendMessage("§6Tu as décidé de te protéger.");
+            lgp.sendActionBarRoleFormat(this, "protect.actionbar");
+            lgp.sendRoleFormat(this, "protect.message");
             lgp.getCache().set("survivant_left", lgp.getCache().<Integer>get("survivant_left") - 1);
             lgp.getCache().set("survivant_protected", true);
             lgp.hideView();
@@ -163,13 +172,14 @@ public class RSurvivant extends Role {
     @EventHandler
     public void onWin(LGGameEndEvent e) {
         if(e.getGame() == getGame() && getPlayers().size() > 0 && e.getWinType() != LGWinType.ANGE) {
-            for(LGPlayer lgp : getPlayers())
+            for(LGPlayer lgp : getPlayers()) {
                 e.getWinners().add(lgp);
+            }
             new BukkitRunnable() {
 
                 @Override
                 public void run() {
-                    getGame().broadcastMessage("§6§oLe " + getName() + "§6§o a rempli son objectif.");
+                    getGame().broadcastFunction(lgp -> roleFormat(lgp, "win", getName(lgp)));
                 }
             }.runTaskAsynchronously(MainLg.getInstance());
         }

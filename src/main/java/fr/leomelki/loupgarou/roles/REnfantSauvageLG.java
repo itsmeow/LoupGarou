@@ -10,8 +10,8 @@ import fr.leomelki.loupgarou.classes.LGPlayer;
 import fr.leomelki.loupgarou.localization.Translate;
 
 public class REnfantSauvageLG extends Role {
-    public REnfantSauvageLG(LGGame game) {
-        super(game);
+    public REnfantSauvageLG(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class REnfantSauvageLG extends Role {
                 lgRole = (RLoupGarou) role;
 
         if(lgRole == null) {
-            getGame().getRoles().add(lgRole = new RLoupGarou(getGame()));
+            getGame().getRoles().add(lgRole = new RLoupGarou(getGame(), 0));
 
             getGame().getRoles().sort(new Comparator<Role>() {
                 @Override

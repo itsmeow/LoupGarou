@@ -21,8 +21,8 @@ import fr.leomelki.loupgarou.classes.LGPlayer;
 public class RChienLoup extends Role {
     private ItemStack[] items;
 
-    public RChienLoup(LGGame game) {
-        super(game);
+    public RChienLoup(LGGame game, int amount) {
+        super(game, amount);
         items = new ItemStack[9];
         items[3] = new ItemStack(Material.GOLDEN_APPLE);
         items[5] = new ItemStack(Material.ROTTEN_FLESH);
@@ -127,7 +127,7 @@ public class RChienLoup extends Role {
                     lgChienLoup = (RChienLoupLG) role;
 
             if(lgChienLoup == null)
-                getGame().getRoles().add(lgChienLoup = new RChienLoupLG(getGame()));
+                getGame().getRoles().add(lgChienLoup = new RChienLoupLG(getGame(), this.getMaxPlayers()));
 
             lgChienLoup.join(lgp, false);
             lgp.updateOwnSkin();

@@ -1,11 +1,11 @@
 package fr.leomelki.loupgarou.classes;
 
-import java.lang.reflect.Constructor;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
 
@@ -71,16 +71,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class LGGame implements Listener {
-    private static boolean autoStart = false;
+    public static final int MIN_PLAYERS = 4;
+    public static final int MAX_PLAYERS = 15;
 
     @Getter
     private final SecureRandom random = new SecureRandom();
     @Getter
-    private final int maxPlayers;
-    @Getter
     private ArrayList<LGPlayer> inGame = new ArrayList<LGPlayer>();
     @Getter
     private ArrayList<Role> roles = new ArrayList<Role>();
+    private Map<String, Integer> roleStaging = new HashMap<String, Integer>();
 
     @Getter
     private boolean started;
@@ -106,8 +106,7 @@ public class LGGame implements Listener {
         return "§e" + sender.getName() + " §6» §f" + message;
     });
 
-    public LGGame(int maxPlayers) {
-        this.maxPlayers = maxPlayers;
+    public LGGame() {
         Bukkit.getPluginManager().registerEvents(this, MainLg.getInstance());
     }
 
@@ -274,7 +273,7 @@ public class LGGame implements Listener {
     public boolean tryToJoin(LGPlayer lgp) {
         if(ended)
             return false;
-        if(!started && inGame.size() < maxPlayers) {// Si la partie n'a pas démarrée et qu'il reste de la place
+        if(!started && inGame.size() < LGGame.MAX_PLAYERS) {// Si la partie n'a pas démarrée et qu'il reste de la place
             lgp.getPlayer().removePotionEffect(PotionEffectType.INVISIBILITY);
             VariousUtils.setWarning(lgp.getPlayer(), false);
             if(lgp.isMuted())
@@ -303,7 +302,7 @@ public class LGGame implements Listener {
             }
 
             lgp.getPlayer().setGameMode(GameMode.ADVENTURE);
-            broadcastFormat("game.joinparty", lgp.getName(), inGame.size(), maxPlayers);
+            broadcastFormat("game.joinparty", lgp.getName(), inGame.size(), MIN_PLAYERS, MAX_PLAYERS);
 
             // Reset scoreboard
             WrapperPlayServerScoreboardObjective obj = new WrapperPlayServerScoreboardObjective();
@@ -312,9 +311,12 @@ public class LGGame implements Listener {
             obj.sendPacket(lgp.getPlayer());
 
             Bukkit.getPluginManager().callEvent(new LGGameJoinEvent(this, lgp));
-            // AutoStart
-            if(autoStart)
-                updateStart();
+            if(startingTask != null) { // game is starting
+                CustomScoreboard scoreboard = new CustomScoreboard("§7"/* [§9Loup-Garou§7] */, lgp);
+                scoreboard.getLine(0).setDisplayName(ChatColor.translateAlternateColorCodes('&', Translate.get(lgp, "game.start")));
+                lgp.setScoreboard(scoreboard);
+            }
+            updateStart();
             return true;
         }
         return false;
@@ -329,15 +331,15 @@ public class LGGame implements Listener {
     }
 
     public void updateStart() {
-        if(!isStarted())
-            if(inGame.size() == maxPlayers) {// Il faut que la partie soit totalement remplie pour qu'elle démarre car sinon,
+        if(!isStarted()) {
+            if(inGame.size() >= MIN_PLAYERS) {// Il faut que la partie soit totalement remplie pour qu'elle démarre car sinon,
                 // tous les rôles ne seraient pas distribués
-                for(LGPlayer lgp : getInGame()) {
-                    CustomScoreboard scoreboard = new CustomScoreboard("§7"/* [§9Loup-Garou§7] */, lgp);
-                    scoreboard.getLine(0).setDisplayName(Translate.get(lgp, "game.start"));
-                    lgp.setScoreboard(scoreboard);
-                }
                 if(startingTask == null) {
+                    for(LGPlayer lgp : getInGame()) {
+                        CustomScoreboard scoreboard = new CustomScoreboard("§7"/* [§9Loup-Garou§7] */, lgp);
+                        scoreboard.getLine(0).setDisplayName(ChatColor.translateAlternateColorCodes('&', Translate.get(lgp, "game.start")));
+                        lgp.setScoreboard(scoreboard);
+                    }
                     startingTask = new BukkitRunnable() {
                         int timeLeft = 5 + 1;
 
@@ -354,6 +356,7 @@ public class LGGame implements Listener {
                 startingTask.cancel();
                 broadcastFormat("game.cancelstart");
             }
+        }
     }
 
     public void start() {
@@ -363,7 +366,6 @@ public class LGGame implements Listener {
         }
         MainLg.getInstance().loadConfig();
         started = true;
-        MainLg main = MainLg.getInstance();
 
         // Registering roles
         List<?> original = MainLg.getInstance().getConfig().getList("spawns");
@@ -382,13 +384,14 @@ public class LGGame implements Listener {
             update.setFoodSaturation(1);
             update.setHealth(20);
             update.sendPacket(p);
-            lgp.getScoreboard().getLine(0).setDisplayName(Translate.get(lgp, "game.pickingroles"));
+            lgp.getScoreboard().getLine(0).setDisplayName(ChatColor.translateAlternateColorCodes('&', Translate.get(lgp, "game.pickingroles")));
         }
 
         try {
-            for(Entry<String, Constructor<? extends Role>> role : main.getRoles().entrySet())
-                if(main.getConfig().getInt("role." + role.getKey()) > 0)
-                    roles.add(role.getValue().newInstance(this));
+            //for(Entry<String, Constructor<? extends Role>> role : main.getRoles().entrySet())
+                //if(main.getConfig().getInt("role." + role.getKey()) > 0)
+                 //   roles.add(role.getValue().newInstance(this));
+            populateRoles();
         } catch(Exception err) {
             Bukkit.broadcastMessage("§4§lUne erreur est survenue lors de la création des roles... Regardez la console ! (Error creating roles, check console!)");
             err.printStackTrace();
@@ -407,8 +410,8 @@ public class LGGame implements Listener {
                 }
                 if(timeLeft == 5 * 2 - 1) {
                     for(LGPlayer lgp : getInGame()) {
-                        lgp.sendFormat("plugin.credit.message");
-                        lgp.sendTitle("", Translate.get(lgp, "plugin.credit.subtitle"), 40);
+                        lgp.sendFormat("game.credit.message");
+                        lgp.sendTitle("", Translate.get(lgp, "game.credit.subtitle"), 40);
                         lgp.getPlayer().getInventory().clear();
                         lgp.getPlayer().updateInventory();
                     }
@@ -417,15 +420,67 @@ public class LGGame implements Listener {
 
                 if(--actualRole < 0)
                     actualRole = getRoles().size() - 1;
-
-                /*
-                 * ItemStack stack = new
-                 * ItemStack(LGCustomItems.getItem(getRoles().get(actualRole))); for(LGPlayer
-                 * lgp : getInGame()) { lgp.getPlayer().getInventory().setItemInOffHand(stack);
-                 * lgp.getPlayer().updateInventory(); }
-                 */
             }
         }.runTaskTimer(MainLg.getInstance(), 0, 4);
+    }
+
+    private void populateRoles() {
+        switch(inGame.size()) {
+        case 13:
+            setRole("Villageois", 2);
+        case 12:
+            setRole("Detective");
+        case 11:
+            setRole("LoupGarouBlanc");
+        case 10:
+            setRole("Villageois");
+        case 9:
+            setRole("Chasseur");
+        case 8:
+            setRole("LoupGarou", 3);
+        case 7:
+            setRole("PetiteFille");
+        case 6:
+            setRole("Cupidon");
+        case 5:
+            setRole("LoupGarou", 2);
+            setRole("Voyante");
+            setRole("Sorciere");
+            setRole("Garde");
+        case 4:
+            setRole("LoupGarou");
+            setRole("Voyante");
+            setRole("Sorciere");
+            setRole("Garde");
+            break;
+        case 14:
+            setRole("LoupGarou", 3);
+            setRole("LoupGarouNoir");
+            setRole("Voyante");
+            setRole("Sorciere");
+            setRole("Garde");
+            setRole("Cupidon");
+            setRole("Medium");
+            setRole("Chasseur");
+            setRole("Villageois");
+            setRole("Detective");
+            setRole("Assassin");
+            setRole("Dictateur");
+            break;
+        default:
+            Bukkit.broadcastMessage("A fatal error has occurred! The game started with players not between 5-15. Ending game...");
+            this.endGame(LGWinType.NONE);
+            break;
+        }
+        roleStaging.forEach((name, amount) -> roles.add(MainLg.getInstance().getRoles().get(name).apply(this, amount)));
+    }
+
+    private void setRole(String name) {
+        setRole(name, 1);
+    }
+
+    private void setRole(String name, int amount) {
+        roleStaging.put(name, amount);
     }
 
     private void _start() {
@@ -434,6 +489,12 @@ public class LGGame implements Listener {
         @SuppressWarnings("unchecked")
         ArrayList<LGPlayer> toGive = (ArrayList<LGPlayer>) inGame.clone();
         started = false;
+        int total = getRoles().stream().map(Role::getMaxPlayers).reduce(0, Integer::sum);
+        if(total > inGame.size()) {
+            Bukkit.broadcastMessage("Fatal error! The amount of players is less than the amount of roles available. Ending game.");
+            this.endGame(LGWinType.NONE);
+            return;
+        }
         for(Role role : getRoles())
             while(role.getWaitedPlayers() > 0) {
                 int randomized = random.nextInt(toGive.size());
@@ -481,7 +542,7 @@ public class LGGame implements Listener {
                     lgp.getScoreboard().getLine(i).delete();
             } else
                 for(LGPlayer lgp : getInGame())
-                    lgp.getScoreboard().getLine(i).setDisplayName("§e" + role.getNumber() + " §6- §e" + role.getRole().getName(lgp).replace("§l", ""));
+                    lgp.getScoreboard().getLine(i).setDisplayName("§e" + role.getNumber() + " §6- §e" + ChatColor.translateAlternateColorCodes('&', role.getRole().getName(lgp).replace("&l", "")));
         }
         for(int i = 15; i >= roles.size(); i--)
             for(LGPlayer lgp : getInGame())
@@ -622,7 +683,7 @@ public class LGGame implements Listener {
             if(vote != null)
                 vote.remove(killed);
 
-            broadcastFunction(lgp -> Translate.get(lgp, "game.kill.broadcast", reason.getMessage(lgp, killed), killed.getRole().getName(lgp), killed.getCache().getBoolean("infected")));
+            broadcastFunction(lgp -> Translate.get(lgp, "game.kill.broadcast", reason.getMessage(lgp, killed), killed.getRole().getName(lgp), killed.getCache().getBoolean("infected") ? 1 : 0));
 
             // Lightning effect
             killed.getPlayer().getWorld().strikeLightningEffect(killed.getPlayer().getLocation());

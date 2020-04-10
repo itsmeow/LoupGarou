@@ -15,8 +15,8 @@ import fr.leomelki.loupgarou.events.LGPlayerKilledEvent.Reason;
 import fr.leomelki.loupgarou.localization.Translate;
 
 public class RChasseur extends Role {
-    public RChasseur(LGGame game) {
-        super(game);
+    public RChasseur(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override

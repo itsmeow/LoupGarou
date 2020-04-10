@@ -10,12 +10,16 @@ import fr.leomelki.loupgarou.classes.LGPlayer;
 
 public class Translate {
 
-    public static Map<String, ResourceBundle> localeBundles = new HashMap<String, ResourceBundle>();
-    public static Map<String, Locale> locales = new HashMap<String, Locale>();
-    
+    private static Map<String, ResourceBundle> localeBundles = new HashMap<String, ResourceBundle>();
+    private static Map<String, Locale> locales = new HashMap<String, Locale>();
+
     static {
         addLocale("en-us");
         addLocale("fr-fr");
+    }
+
+    public static boolean containsLocale(String localeIn) {
+        return locales.containsKey(localeIn);
     }
 
     private static void addLocale(String localeIn) {
@@ -27,23 +31,28 @@ public class Translate {
     public static Locale getLocale(LGPlayer player) {
         return locales.get(player.getLocale());
     }
-    
+
     public static ResourceBundle getBundle(String locale) {
         return localeBundles.get(locale);
     }
-    
+
     public static ResourceBundle getBundle(LGPlayer player) {
         return localeBundles.get(player.getLocale());
     }
 
     public static String get(LGPlayer player, String key) {
         ResourceBundle bundle = getBundle(player);
+        return bundle.containsKey(key) ? bundle.getString(key).replaceAll("'''", "'") : key;
+    }
+    
+    private static String get2(LGPlayer player, String key) {
+        ResourceBundle bundle = getBundle(player);
         return bundle.containsKey(key) ? bundle.getString(key) : key;
     }
 
     public static String get(LGPlayer player, String key, Object... args) {
         ResourceBundle bundle = getBundle(player);
-        return bundle.containsKey(key) ? format(player, get(player, key), args) : key;
+        return bundle.containsKey(key) ? format(player, get2(player, key), args) : key;
     }
 
     public static MessageFormat getFormatter(LGPlayer player, String format) {

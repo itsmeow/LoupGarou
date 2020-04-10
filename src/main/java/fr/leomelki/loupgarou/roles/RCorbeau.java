@@ -11,8 +11,8 @@ import fr.leomelki.loupgarou.events.LGDayEndEvent;
 import fr.leomelki.loupgarou.events.LGVoteEvent;
 
 public class RCorbeau extends Role {
-    public RCorbeau(LGGame game) {
-        super(game);
+    public RCorbeau(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override

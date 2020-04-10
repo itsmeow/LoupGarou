@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.function.Function;
 
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.Listener;
 
 import fr.leomelki.loupgarou.MainLg;
@@ -24,14 +23,15 @@ public abstract class Role implements Listener {
     @Getter
     private final LGGame game;
     private final String roleConfigName;
+    @Getter
+    private final int maxPlayers;
 
-    public Role(LGGame game) {
+    public Role(LGGame game, int waitedPlayers) {
         this.game = game;
         Bukkit.getPluginManager().registerEvents(this, MainLg.getInstance());
-        FileConfiguration config = MainLg.getInstance().getConfig();
         roleConfigName = "role." + getClass().getSimpleName().substring(1);
-        if(config.contains(roleConfigName))
-            waitedPlayers = config.getInt(roleConfigName);
+        this.waitedPlayers = waitedPlayers;
+        this.maxPlayers = waitedPlayers;
     }
 
     public String getName(LGPlayer player) {
@@ -39,7 +39,7 @@ public abstract class Role implements Listener {
     }
 
     public String getFriendlyName(LGPlayer player) {
-        return Translate.get(player, "role.generic.friendlyname", getName(player));
+        return roleFormat(player, "friendlyname", getName(player));
     }
 
     public String getShortDescription(LGPlayer player) {
@@ -151,11 +151,11 @@ public abstract class Role implements Listener {
     }// En combientième ce rôle doit être appellé
 
     public String roleFormat(LGPlayer player, String key) {
-        return Translate.get(player, "role." + roleConfigName + "." + key);
+        return Translate.get(player, roleConfigName.toLowerCase() + "." + key);
     }
 
     public String roleFormat(LGPlayer player, String key, Object... args) {
-        return Translate.get(player, "role." + roleConfigName + "." + key, args);
+        return Translate.get(player, roleConfigName.toLowerCase() + "." + key, args);
     }
 
     public Function<LGPlayer, String> roleFormat(String key) {

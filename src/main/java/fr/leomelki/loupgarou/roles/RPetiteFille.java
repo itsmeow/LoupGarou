@@ -7,8 +7,8 @@ import fr.leomelki.loupgarou.classes.LGPlayer;
 import fr.leomelki.loupgarou.events.LGRoleTurnEndEvent;
 
 public class RPetiteFille extends Role {
-    public RPetiteFille(LGGame game) {
-        super(game);
+    public RPetiteFille(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override

@@ -34,8 +34,8 @@ public class RPyromane extends Role {
 
     private Runnable callback;
 
-    public RPyromane(LGGame game) {
-        super(game);
+    public RPyromane(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override

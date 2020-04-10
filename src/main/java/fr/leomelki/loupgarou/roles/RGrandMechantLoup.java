@@ -10,8 +10,8 @@ import fr.leomelki.loupgarou.events.LGPlayerKilledEvent.Reason;
 
 public class RGrandMechantLoup extends Role {
 
-    public RGrandMechantLoup(LGGame game) {
-        super(game);
+    public RGrandMechantLoup(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override

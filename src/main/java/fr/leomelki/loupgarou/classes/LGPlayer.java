@@ -86,6 +86,9 @@ public class LGPlayer {
     private String latestObjective;
     @Getter
     private CustomScoreboard scoreboard;
+    @Getter
+    @Setter
+    private String locale = "en-us";
 
     public LGPlayer(Player player) {
         this.player = player;
@@ -454,7 +457,4 @@ public class LGPlayer {
         return super.toString() + " (" + getName() + ")";
     }
 
-    public String getLocale() {
-        return "fr-fr";
-    }
 }

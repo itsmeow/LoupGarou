@@ -11,8 +11,8 @@ import fr.leomelki.loupgarou.events.LGPlayerKilledEvent.Reason;
 import fr.leomelki.loupgarou.events.LGRoleTurnEndEvent;
 
 public class RChaperonRouge extends Role{
-	public RChaperonRouge(LGGame game) {
-		super(game);
+	public RChaperonRouge(LGGame game, int amount) {
+        super(game, amount);
 	}
 	@Override
 	public RoleType getType() {

@@ -28,8 +28,8 @@ public class RLoupGarouNoir extends Role {
     private Runnable callback;
     private LGPlayer toInfect;
 
-    public RLoupGarouNoir(LGGame game) {
-        super(game);
+    public RLoupGarouNoir(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override

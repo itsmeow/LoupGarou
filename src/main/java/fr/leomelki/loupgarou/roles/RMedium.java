@@ -10,8 +10,8 @@ import fr.leomelki.loupgarou.events.LGPreDayStartEvent;
 import fr.leomelki.loupgarou.events.LGRoleTurnEndEvent;
 
 public class RMedium extends Role {
-    public RMedium(LGGame game) {
-        super(game);
+    public RMedium(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override

@@ -13,8 +13,8 @@ import fr.leomelki.loupgarou.events.LGPlayerKilledEvent.Reason;
 import fr.leomelki.loupgarou.events.LGPreDayStartEvent;
 
 public class RGarde extends Role{
-	public RGarde(LGGame game) {
-		super(game);
+	public RGarde(LGGame game, int amount) {
+        super(game, amount);
 	}
 	@Override
 	public RoleType getType() {

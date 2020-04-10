@@ -22,8 +22,8 @@ public class RLoupGarouBlanc extends Role {
 
     private Runnable callback;
 
-    public RLoupGarouBlanc(LGGame game) {
-        super(game);
+    public RLoupGarouBlanc(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override

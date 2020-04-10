@@ -5,8 +5,8 @@ import fr.leomelki.loupgarou.classes.LGPlayer;
 import fr.leomelki.loupgarou.classes.LGPlayer.LGChooseCallback;
 
 public class RDetective extends Role {
-    public RDetective(LGGame game) {
-        super(game);
+    public RDetective(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override

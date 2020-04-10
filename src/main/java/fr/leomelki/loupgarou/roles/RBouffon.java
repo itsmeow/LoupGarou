@@ -19,8 +19,8 @@ public class RBouffon extends Role {
 
     private ArrayList<LGPlayer> needToPlay = new ArrayList<LGPlayer>();
 
-    public RBouffon(LGGame game) {
-        super(game);
+    public RBouffon(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override

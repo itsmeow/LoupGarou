@@ -35,8 +35,8 @@ public class RDictateur extends Role {
     private Runnable onDoNothing;
     private boolean inMenu = false;
 
-    public RDictateur(LGGame game) {
-        super(game);
+    public RDictateur(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override

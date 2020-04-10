@@ -81,8 +81,6 @@ public class LGVote {
             player.choose(getChooseCallback(player));
     }
 
-    private static final EntityArmorStand eas = new EntityArmorStand(null, 0, 0, 0);
-
     private void end() {
         ended = true;
         for(LGPlayer lgp : viewers)
@@ -278,6 +276,11 @@ public class LGVote {
         updateVotes(voted, false);
     }
 
+    private static EntityArmorStand armorStand = new EntityArmorStand(null, 0, 0, 0);
+    static {
+        armorStand.setCustomNameVisible(true);
+    }
+
     private void updateVotes(LGPlayer voted, boolean kill) {
         int entityId = Integer.MIN_VALUE + voted.getPlayer().getEntityId();
         WrapperPlayServerEntityDestroy destroy = new WrapperPlayServerEntityDestroy();
@@ -311,14 +314,11 @@ public class LGVote {
             int votesNbr = votes.get(voted).size();
 
             for(LGPlayer lgp : viewers) {
-                DataWatcher datawatcher = new DataWatcher(eas);
-                // invisible
-                datawatcher.a(0, (byte) 0x20);
-                // custom name
-                datawatcher.a(2, Translate.get(lgp, "voting.display.head", votesNbr));
-                // custom name visible
-                datawatcher.a(3, true);
-                PacketPlayOutEntityMetadata meta = new PacketPlayOutEntityMetadata(entityId, datawatcher, true);
+                DataWatcher dw = new DataWatcher(armorStand);
+                dw.a(0, (byte) 0x20);
+                dw.a(2, Translate.get(lgp, "voting.display.head", votesNbr));
+                PacketPlayOutEntityMetadata meta = new PacketPlayOutEntityMetadata(entityId, dw, true);
+
                 spawn.sendPacket(lgp.getPlayer());
                 ((CraftPlayer) lgp.getPlayer()).getHandle().playerConnection.sendPacket(meta);
             }

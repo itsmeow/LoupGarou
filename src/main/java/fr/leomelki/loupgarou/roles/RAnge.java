@@ -15,8 +15,8 @@ import fr.leomelki.loupgarou.events.LGPlayerKilledEvent.Reason;
 import fr.leomelki.loupgarou.events.LGVoteEvent;
 
 public class RAnge extends Role {
-    public RAnge(LGGame game) {
-        super(game);
+    public RAnge(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class RAnge extends Role {
                 }
 
                 if(villageois == null)
-                    getGame().getRoles().add(villageois = new RVillageois(getGame()));
+                    getGame().getRoles().add(villageois = new RVillageois(getGame(), 1));
 
                 for(LGPlayer lgp : getPlayers()) {
                     lgp.sendRoleFormat(this, "failed");

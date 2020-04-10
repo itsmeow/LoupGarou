@@ -16,8 +16,8 @@ import fr.leomelki.loupgarou.events.LGPlayerKilledEvent.Reason;
 public class RFaucheur extends Role {
     private static Random random = new Random();
 
-    public RFaucheur(LGGame game) {
-        super(game);
+    public RFaucheur(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override

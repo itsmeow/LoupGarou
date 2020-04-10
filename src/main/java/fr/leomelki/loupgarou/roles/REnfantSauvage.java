@@ -13,8 +13,8 @@ import fr.leomelki.loupgarou.events.LGPlayerKilledEvent;
 public class REnfantSauvage extends Role {
     private static Random random = new Random();
 
-    public REnfantSauvage(LGGame game) {
-        super(game);
+    public REnfantSauvage(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class REnfantSauvage extends Role {
                             lgEnfantSvg = (REnfantSauvageLG) role;
 
                     if(lgEnfantSvg == null)
-                        getGame().getRoles().add(lgEnfantSvg = new REnfantSauvageLG(getGame()));
+                        getGame().getRoles().add(lgEnfantSvg = new REnfantSauvageLG(getGame(), this.getMaxPlayers()));
 
                     lgEnfantSvg.join(enfant, false);
                 }

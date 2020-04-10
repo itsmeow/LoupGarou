@@ -28,8 +28,8 @@ public class RSorciere extends Role {
 
     private boolean inMenu = false;
 
-    public RSorciere(LGGame game) {
-        super(game);
+    public RSorciere(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override
@@ -79,17 +79,19 @@ public class RSorciere extends Role {
     private Inventory createInventory(LGPlayer player) {
         Inventory inventory = Bukkit.createInventory(null, InventoryType.BREWING, sauver == null ? roleFormat(player, "gui.notarget") : roleFormat(player, "gui.target.name", sauver.getName()));
         ItemStack[] items = new ItemStack[4];
-        if(sauver != null) {
-            if(!player.getCache().getBoolean("witch_used_life")) {
-                items[0] = createLifePotion(player);
-            }
-            items[4] = createTargetItem(player);
-        }
+        items[0] = createLifePotion(player);
         items[1] = createNothingItem(player);
-        if(!player.getCache().getBoolean("witch_used_death")) {
-            items[2] = createDeathPotion(player);
-        }
+        items[2] = createDeathPotion(player);
         inventory.setContents(items);
+        if(sauver == null || player.getCache().getBoolean("witch_used_life")) {
+            inventory.setItem(0, null);
+        }
+        if(sauver != null) {
+            inventory.setItem(4, createTargetItem(player));
+        }
+        if(player.getCache().getBoolean("witch_used_death")) {
+            inventory.setItem(2, null);
+        }
         return inventory;
     }
 

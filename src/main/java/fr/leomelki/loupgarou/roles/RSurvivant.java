@@ -28,8 +28,8 @@ public class RSurvivant extends Role {
 
     private Runnable callback;
 
-    public RSurvivant(LGGame game) {
-        super(game);
+    public RSurvivant(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override

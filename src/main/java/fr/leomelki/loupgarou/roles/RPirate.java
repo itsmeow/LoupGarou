@@ -28,8 +28,8 @@ public class RPirate extends Role {
 
     private Runnable callback;
 
-    public RPirate(LGGame game) {
-        super(game);
+    public RPirate(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override

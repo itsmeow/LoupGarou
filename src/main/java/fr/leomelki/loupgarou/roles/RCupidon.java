@@ -33,8 +33,8 @@ import fr.leomelki.loupgarou.events.LGPlayerKilledEvent.Reason;
 import fr.leomelki.loupgarou.events.LGUpdatePrefixEvent;
 
 public class RCupidon extends Role {
-    public RCupidon(LGGame game) {
-        super(game);
+    public RCupidon(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override

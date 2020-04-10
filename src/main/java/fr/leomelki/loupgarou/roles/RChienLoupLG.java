@@ -8,8 +8,8 @@ import fr.leomelki.loupgarou.classes.LGPlayer;
 import fr.leomelki.loupgarou.localization.Translate;
 
 public class RChienLoupLG extends Role {
-    public RChienLoupLG(LGGame game) {
-        super(game);
+    public RChienLoupLG(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override

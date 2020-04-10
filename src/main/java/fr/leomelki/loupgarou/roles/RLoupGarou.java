@@ -24,8 +24,8 @@ import lombok.Getter;
 
 public class RLoupGarou extends Role {
 
-    public RLoupGarou(LGGame game) {
-        super(game);
+    public RLoupGarou(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override

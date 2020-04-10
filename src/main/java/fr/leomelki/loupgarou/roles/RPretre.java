@@ -36,8 +36,8 @@ public class RPretre extends Role {
     private boolean inMenu = false;
     private ArrayList<LGPlayer> ressucited = new ArrayList<LGPlayer>();
 
-    public RPretre(LGGame game) {
-        super(game);
+    public RPretre(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override
@@ -234,7 +234,7 @@ public class RPretre extends Role {
                         if(role instanceof RVillageois)
                             villagers = (RVillageois) role;
                     if(villagers == null)
-                        getGame().getRoles().add(villagers = new RVillageois(getGame()));
+                        getGame().getRoles().add(villagers = new RVillageois(getGame(), 1));
                     villagers.join(lgp, false);// Le joueur réssucité rejoint les villageois.
                     lgp.setRole(villagers);
                     lgp.getPlayer().removePotionEffect(PotionEffectType.INVISIBILITY);

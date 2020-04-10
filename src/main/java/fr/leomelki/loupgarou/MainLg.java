@@ -1,13 +1,13 @@
 package fr.leomelki.loupgarou;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -75,7 +75,7 @@ import lombok.Setter;
 public class MainLg extends JavaPlugin {
     private static MainLg instance;
     @Getter
-    private HashMap<String, Constructor<? extends Role>> roles = new HashMap<String, Constructor<? extends Role>>();
+    private HashMap<String, BiFunction<LGGame, Integer, ? extends Role>> roles = new HashMap<String, BiFunction<LGGame, Integer, ? extends Role>>();
     @Getter
     private static String prefix = ""/* "§7[§9Loup-Garou§7] " */;
 
@@ -90,8 +90,8 @@ public class MainLg extends JavaPlugin {
         if(!new File(getDataFolder(), "config.yml").exists()) {// Créer la config
             FileConfiguration config = getConfig();
             config.set("spawns", new ArrayList<List<Double>>());
-            for(String role : roles.keySet())// Nombre de participant pour chaque rôle
-                config.set("role." + role, 1);
+            //for(String role : roles.keySet())// Nombre de participant pour chaque rôle
+            //    config.set("role." + role, 1);
             saveConfig();
         }
         loadConfig();
@@ -227,7 +227,7 @@ public class MainLg extends JavaPlugin {
                         format(sender, "command.generic.notingame", args[1]);
                         return true;
                     }
-                    if(MainLg.getInstance().getConfig().getList("spawns").size() < lgp.getGame().getMaxPlayers()) {
+                    if(MainLg.getInstance().getConfig().getList("spawns").size() < LGGame.MAX_PLAYERS) {
                         format(sender, "command.start.spawns1");
                         format(sender, "command.start.spawns2");
                         return true;
@@ -273,6 +273,8 @@ public class MainLg extends JavaPlugin {
                     }
                     return true;
                 } else if(args[0].equalsIgnoreCase("roles")) {
+                    sender.sendMessage("Command disabled.");
+                    return true;/*
                     if(args.length == 1 || args[1].equalsIgnoreCase("list")) {
                         format(sender, "command.roles.list");
                         int index = 0;
@@ -325,6 +327,11 @@ public class MainLg extends JavaPlugin {
                             format(sender, "command.generic.nosubcommand");
                             format(sender, "command.roles.nosubcommand");
                         }
+                    }
+                    return true;*/
+                } else if(args[0].equals("lang")) {
+                    if(sender instanceof Player && args.length == 2 && Translate.containsLocale(args[1])) {
+                        LGPlayer.thePlayer((Player) sender).setLocale(args[1]);
                     }
                     return true;
                 }
@@ -383,10 +390,7 @@ public class MainLg extends JavaPlugin {
     }
 
     public void loadConfig() {
-        int players = 0;
-        for(String role : roles.keySet())
-            players += getConfig().getInt("role." + role);
-        currentGame = new LGGame(players);
+        currentGame = new LGGame();
     }
 
     @Override
@@ -399,35 +403,35 @@ public class MainLg extends JavaPlugin {
     }
 
     private void loadRoles() {
-        try {
-            roles.put("LoupGarou", RLoupGarou.class.getConstructor(LGGame.class));
-            roles.put("LoupGarouNoir", RLoupGarouNoir.class.getConstructor(LGGame.class));
-            roles.put("Garde", RGarde.class.getConstructor(LGGame.class));
-            roles.put("Sorciere", RSorciere.class.getConstructor(LGGame.class));
-            roles.put("Voyante", RVoyante.class.getConstructor(LGGame.class));
-            roles.put("Chasseur", RChasseur.class.getConstructor(LGGame.class));
-            roles.put("Villageois", RVillageois.class.getConstructor(LGGame.class));
-            roles.put("Medium", RMedium.class.getConstructor(LGGame.class));
-            roles.put("Dictateur", RDictateur.class.getConstructor(LGGame.class));
-            roles.put("Cupidon", RCupidon.class.getConstructor(LGGame.class));
-            roles.put("PetiteFille", RPetiteFille.class.getConstructor(LGGame.class));
-            roles.put("ChaperonRouge", RChaperonRouge.class.getConstructor(LGGame.class));
-            roles.put("LoupGarouBlanc", RLoupGarouBlanc.class.getConstructor(LGGame.class));
-            roles.put("Bouffon", RBouffon.class.getConstructor(LGGame.class));
-            roles.put("Ange", RAnge.class.getConstructor(LGGame.class));
-            roles.put("Survivant", RSurvivant.class.getConstructor(LGGame.class));
-            roles.put("Assassin", RAssassin.class.getConstructor(LGGame.class));
-            roles.put("GrandMechantLoup", RGrandMechantLoup.class.getConstructor(LGGame.class));
-            roles.put("Corbeau", RCorbeau.class.getConstructor(LGGame.class));
-            roles.put("Detective", RDetective.class.getConstructor(LGGame.class));
-            roles.put("ChienLoup", RChienLoup.class.getConstructor(LGGame.class));
-            roles.put("Pirate", RPirate.class.getConstructor(LGGame.class));
-            roles.put("Pyromane", RPyromane.class.getConstructor(LGGame.class));
-            roles.put("Pretre", RPretre.class.getConstructor(LGGame.class));
-            roles.put("Faucheur", RFaucheur.class.getConstructor(LGGame.class));
-            roles.put("EnfantSauvage", REnfantSauvage.class.getConstructor(LGGame.class));
-        } catch(NoSuchMethodException | SecurityException e) {
-            e.printStackTrace();
-        }
+        l("LoupGarou", RLoupGarou::new);
+        l("LoupGarouNoir", RLoupGarouNoir::new);
+        l("Garde", RGarde::new);
+        l("Sorciere", RSorciere::new);
+        l("Voyante", RVoyante::new);
+        l("Chasseur", RChasseur::new);
+        l("Villageois", RVillageois::new);
+        l("Medium", RMedium::new);
+        l("Dictateur", RDictateur::new);
+        l("Cupidon", RCupidon::new);
+        l("PetiteFille", RPetiteFille::new);
+        l("ChaperonRouge", RChaperonRouge::new);
+        l("LoupGarouBlanc", RLoupGarouBlanc::new);
+        l("Bouffon", RBouffon::new);
+        l("Ange", RAnge::new);
+        l("Survivant", RSurvivant::new);
+        l("Assassin", RAssassin::new);
+        l("GrandMechantLoup", RGrandMechantLoup::new);
+        l("Corbeau", RCorbeau::new);
+        l("Detective", RDetective::new);
+        l("ChienLoup", RChienLoup::new);
+        l("Pirate", RPirate::new);
+        l("Pyromane", RPyromane::new);
+        l("Pretre", RPretre::new);
+        l("Faucheur", RFaucheur::new);
+        l("EnfantSauvage", REnfantSauvage::new);
+    }
+
+    private void l(String name, BiFunction<LGGame, Integer, ? extends Role> ctor) {
+        roles.put(name, ctor);
     }
 }

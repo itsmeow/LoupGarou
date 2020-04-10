@@ -16,8 +16,8 @@ import fr.leomelki.loupgarou.events.LGPyromaneGasoilEvent;
 import fr.leomelki.loupgarou.events.LGRoleTurnEndEvent;
 
 public class RAssassin extends Role {
-    public RAssassin(LGGame game) {
-        super(game);
+    public RAssassin(LGGame game, int amount) {
+        super(game, amount);
     }
 
     @Override

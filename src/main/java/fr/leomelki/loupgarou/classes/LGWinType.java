@@ -12,6 +12,7 @@ public enum LGWinType {
     SOLO, // bug si ça s'affiche
     ASSASSIN,
     PYROMANE,
+    VAMPIRE,
     NONE;
 
     public String getMessage(LGPlayer player) {

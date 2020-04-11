@@ -31,6 +31,7 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 
 import fr.leomelki.com.comphenix.packetwrapper.WrapperPlayServerChat;
+import fr.leomelki.com.comphenix.packetwrapper.WrapperPlayServerEntityDestroy;
 import fr.leomelki.com.comphenix.packetwrapper.WrapperPlayServerExperience;
 import fr.leomelki.com.comphenix.packetwrapper.WrapperPlayServerPlayerInfo;
 import fr.leomelki.com.comphenix.packetwrapper.WrapperPlayServerScoreboardObjective;
@@ -279,9 +280,32 @@ public class LGGame implements Listener {
             if(lgp.isMuted())
                 lgp.resetMuted();
 
-            lgp.getPlayer().getInventory().clear();
-            lgp.getPlayer().updateInventory();
-            lgp.getPlayer().closeInventory();
+            Player player = lgp.getPlayer();
+
+            // Clear votes
+
+            WrapperPlayServerEntityDestroy destroy = new WrapperPlayServerEntityDestroy();
+            destroy.setEntityIds(new int[] { Integer.MIN_VALUE + player.getEntityId() });
+            int[] ids = new int[getInGame().size() + 1];
+            for(int i = 0; i < getInGame().size(); i++) {
+                Player l = getInGame().get(i).getPlayer();
+                if(l == null)
+                    continue;
+                ids[i] = Integer.MIN_VALUE + l.getEntityId();
+                destroy.sendPacket(l);
+            }
+
+            ids[ids.length - 1] = -player.getEntityId();// Clear voting
+
+            destroy = new WrapperPlayServerEntityDestroy();
+            destroy.setEntityIds(ids);
+            destroy.sendPacket(player);
+
+            // End clear votes/voting
+
+            player.getInventory().clear();
+            player.updateInventory();
+            player.closeInventory();
 
             lgp.joinChat(dayChat);
 
@@ -293,22 +317,22 @@ public class LGGame implements Listener {
             for(LGPlayer other : getInGame()) {
                 other.updatePrefix();
                 if(lgp != other) {
-                    lgp.getPlayer().hidePlayer(other.getPlayer());
-                    lgp.getPlayer().showPlayer(other.getPlayer());
+                    player.hidePlayer(other.getPlayer());
+                    player.showPlayer(other.getPlayer());
 
-                    other.getPlayer().hidePlayer(lgp.getPlayer());
-                    other.getPlayer().showPlayer(lgp.getPlayer());
+                    other.getPlayer().hidePlayer(player);
+                    other.getPlayer().showPlayer(player);
                 }
             }
 
-            lgp.getPlayer().setGameMode(GameMode.ADVENTURE);
+            player.setGameMode(GameMode.ADVENTURE);
             broadcastFormat("game.joinparty", lgp.getName(), inGame.size(), MIN_PLAYERS, MAX_PLAYERS);
 
             // Reset scoreboard
             WrapperPlayServerScoreboardObjective obj = new WrapperPlayServerScoreboardObjective();
             obj.setName("lg_scoreboard");
             obj.setMode(1);
-            obj.sendPacket(lgp.getPlayer());
+            obj.sendPacket(player);
 
             Bukkit.getPluginManager().callEvent(new LGGameJoinEvent(this, lgp));
             if(startingTask != null) { // game is starting
@@ -683,7 +707,7 @@ public class LGGame implements Listener {
             if(vote != null)
                 vote.remove(killed);
 
-            broadcastFunction(lgp -> Translate.get(lgp, "game.kill.broadcast", reason.getMessage(lgp, killed), killed.getRole().getName(lgp), killed.getCache().getBoolean("infected") ? 1 : 0));
+            broadcastFunction(lgp -> Translate.get(lgp, "game.kill.broadcast", reason.getMessage(lgp, killed), killed.getRole().getName(lgp), killed.getCache().getBoolean("infected") ? 1 : 0, killed.getCache().getBoolean("vampire") ? 1 : 0));
 
             // Lightning effect
             killed.getPlayer().getWorld().strikeLightningEffect(killed.getPlayer().getLocation());
@@ -738,6 +762,12 @@ public class LGGame implements Listener {
     public void endGame(LGWinType winType) {
         if(ended)
             return;
+
+        for(LGPlayer lgp : getInGame())//Avoid bugs
+            if(lgp.getPlayer() != null)
+                lgp.getPlayer().closeInventory();
+
+        cancelWait();//Also avoid bugs
 
         ArrayList<LGPlayer> winners = new ArrayList<LGPlayer>();
         LGGameEndEvent event = new LGGameEndEvent(this, winType, winners);
@@ -1042,7 +1072,7 @@ public class LGGame implements Listener {
     }
 
     public boolean checkEndGame(boolean doEndGame) {
-        int goodGuy = 0, badGuy = 0, solo = 0;
+        int goodGuy = 0, badGuy = 0, solo = 0, vampires = 0;
         for(LGPlayer lgp : getAlive())
             if(lgp.getRoleWinType() == RoleWinType.LOUP_GAROU)
                 badGuy++;
@@ -1052,11 +1082,14 @@ public class LGGame implements Listener {
                 solo++;
         LGEndCheckEvent event = new LGEndCheckEvent(this, goodGuy == 0 || badGuy == 0 ? (goodGuy + badGuy == 0 ? LGWinType.EQUAL : (goodGuy > 0 ? LGWinType.VILLAGEOIS : LGWinType.LOUPGAROU)) : LGWinType.NONE);
 
-        if((badGuy + goodGuy > 0 && solo > 0) || solo > 1)
+        if((badGuy+goodGuy > 0 && solo > 0) || solo > 1 || (badGuy+goodGuy > 0 && vampires > 0) || (solo > 0 && vampires > 0))
             event.setWinType(LGWinType.NONE);
 
-        if(badGuy + goodGuy == 0 && solo == 1)
+        if(badGuy+goodGuy == 0 && solo == 1 && vampires == 0)
             event.setWinType(LGWinType.SOLO);
+
+        if(badGuy+goodGuy == 0 && solo == 0 && vampires > 0)
+            event.setWinType(LGWinType.VAMPIRE);
 
         Bukkit.getPluginManager().callEvent(event);
         if(doEndGame && event.getWinType() != LGWinType.NONE)

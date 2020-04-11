@@ -155,7 +155,7 @@ public class RPirate extends Role {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerKilled(LGPlayerKilledEvent e) {
         if(e.getGame() == getGame() && e.getReason() == Reason.VOTE)
-            if(e.getKilled().getCache().has("pirate_otage")) {
+            if(e.getKilled().getCache().has("pirate_otage") && e.getKilled().isRoleActive()) {
                 LGPlayer otage = e.getKilled().getCache().remove("pirate_otage");
                 if(!otage.isDead() && otage.getCache().get("pirate_otage_d") == e.getKilled()) {
                     getGame().broadcastFunction(lgp -> roleFormat(lgp, "death.hostage.broadcast", e.getKilled().getName(), getName(lgp)));

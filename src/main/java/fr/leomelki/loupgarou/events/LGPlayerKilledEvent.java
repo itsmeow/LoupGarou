@@ -27,6 +27,7 @@ public class LGPlayerKilledEvent extends LGEvent implements Cancellable{
 		GM_LOUP_GAROU,
 		LOUP_BLANC,
 		SORCIERE,
+		CHASSEUR_DE_VAMPIRE,
 		VOTE,
 		CHASSEUR,
 		DICTATOR,

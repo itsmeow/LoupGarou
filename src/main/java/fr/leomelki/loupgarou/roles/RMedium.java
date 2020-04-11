@@ -60,7 +60,7 @@ public class RMedium extends Role {
         if(e.getGame() == getGame()) {
             if(e.getPreviousRole() instanceof RLoupGarou) {
                 for(LGPlayer lgp : getPlayers()) {
-                    if(lgp.getChat() != getGame().getSpectatorChat()) {
+                    if(lgp.getChat() != getGame().getSpectatorChat() && lgp.isRoleActive()) {
                         lgp.sendRoleFormat(this, "rerole");
                         joinChat(lgp);
                     }
@@ -73,7 +73,8 @@ public class RMedium extends Role {
     public void onDay(LGPreDayStartEvent e) {
         if(e.getGame() == getGame()) {
             for(LGPlayer lgp : getPlayers()) {
-                lgp.leaveChat();
+                if(lgp.isRoleActive())
+                    lgp.leaveChat();
             }
         }
     }

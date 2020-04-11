@@ -13,6 +13,7 @@
             if (matches) {
                 newText = newText.replace(/\+getName\(\)\+?/g, "{0}");
             }
+            newText = newText.replace(/§/g, "&").replace(/'/g, "'''");
             if (txt.length > 0) {
                 if (matches) {
                     outD.innerHTML += "#{0} = role.().name<br>";

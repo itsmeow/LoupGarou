@@ -23,7 +23,7 @@ compileJava.options.encoding = "UTF-8"
 generateLombokConfig.enabled = false
 
 group 'fr.leomelki'
-version '1.0.1'
+version '1.8.8-1.1.0'
 archivesBaseName = 'LoupGarou'
 
 repositories {

@@ -29,7 +29,7 @@ public class RChaperonRouge extends Role{
 	
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onKill(LGNightPlayerPreKilledEvent e) {
-		if(e.getKilled().getRole() == this && e.getReason() == Reason.LOUP_GAROU || e.getReason() == Reason.GM_LOUP_GAROU) {
+		if(e.getKilled().getRole() == this && e.getReason() == Reason.LOUP_GAROU || e.getReason() == Reason.GM_LOUP_GAROU && e.getKilled().isRoleActive()) {
 			for(Role role : getGame().getRoles())
 				if(role instanceof RChasseur)
 					if(role.getPlayers().size() > 0){
@@ -44,14 +44,14 @@ public class RChaperonRouge extends Role{
 		if(e.getGame() == getGame()) {
 			if(e.getPreviousRole() instanceof RLoupGarou) {
 				for(LGPlayer lgp : getGame().getAlive())
-					if(lgp.getCache().getBoolean("chaperon_kill")) {
+					if(lgp.getCache().getBoolean("chaperon_kill") && lgp.isRoleActive()) {
 						for(LGPlayer l : getGame().getInGame())
 							if(l.getRoleType() == RoleType.LOUP_GAROU)
 								l.sendFormat("role.generic.targetimmune");
 					}
 			}else if(e.getPreviousRole() instanceof RGrandMechantLoup) {
 				for(LGPlayer lgp : getGame().getAlive())
-					if(lgp.getCache().getBoolean("chaperon_kill")) {
+					if(lgp.getCache().getBoolean("chaperon_kill") && lgp.isRoleActive()) {
 						for(LGPlayer l : e.getPreviousRole().getPlayers())
 							l.sendFormat("role.generic.targetimmune");
 					}

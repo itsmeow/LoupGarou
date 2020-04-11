@@ -40,7 +40,7 @@ public class RAnge extends Role {
             night = getGame().getNight();
             vote = true;
             for(LGPlayer lgp : getPlayers())
-                if(!lgp.isDead())
+                if(!lgp.isDead() && lgp.isRoleActive())
                     lgp.sendRoleFormat(this, "reminder");
         }
     }
@@ -61,7 +61,9 @@ public class RAnge extends Role {
                     getGame().getRoles().add(villageois = new RVillageois(getGame(), 1));
 
                 for(LGPlayer lgp : getPlayers()) {
-                    lgp.sendRoleFormat(this, "failed");
+                    if(lgp.isRoleActive()) {
+                        lgp.sendRoleFormat(this, "failed");
+                    }
                     lgp.setRole(villageois);
                     villageois.join(lgp);
                 }
@@ -79,7 +81,7 @@ public class RAnge extends Role {
     @EventHandler
     public void onDeath(LGPlayerGotKilledEvent e) {
         if(e.getGame() == getGame())
-            if(e.getReason() == Reason.VOTE && e.getKilled().getRole() == this && getGame().getNight() == night)
+            if(e.getReason() == Reason.VOTE && e.getKilled().getRole() == this && getGame().getNight() == night && e.getKilled().isRoleActive())
                 winners.add(e.getKilled());
     }
 

@@ -74,7 +74,7 @@ public class REnfantSauvage extends Role {
         if(e.getGame() == getGame())
             if(e.getKilled().getCache().has("enfant_svg_d")) {
                 LGPlayer enfant = e.getKilled().getCache().remove("enfant_svg_d");
-                if(!enfant.isDead() && enfant.getCache().remove("enfant_svg") == e.getKilled()) {
+                if(!enfant.isDead() && enfant.getCache().remove("enfant_svg") == e.getKilled() && enfant.isRoleActive()) {
                     enfant.sendRoleFormat(this, "model.death", e.getKilled().getName());
                     REnfantSauvageLG lgEnfantSvg = null;
                     for(Role role : getGame().getRoles())

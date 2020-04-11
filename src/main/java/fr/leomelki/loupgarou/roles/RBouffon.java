@@ -77,10 +77,10 @@ public class RBouffon extends Role {
         List<LGPlayer> choosable = getGame().getVote().getVotes(player);
         StringJoiner sj = new StringJoiner(roleFormat(player, "votelist.seperator"));
         for(LGPlayer lgp : choosable)
-            if(lgp.getPlayer() != null && lgp.getPlayer() != player)
+            if(lgp.getPlayer() != null && lgp != player)
                 sj.add(lgp.getName());
 
-        player.sendRoleFormat(this, "votelist", sj, sj.length());
+        player.sendRoleFormat(this, "votelist", sj, choosable.size());
 
         player.choose((choosen) -> {
             if(choosen != null) {
@@ -106,7 +106,7 @@ public class RBouffon extends Role {
 
     @EventHandler
     public void onPlayerKill(LGPlayerKilledEvent e) {
-        if(e.getKilled().getRole() == this && e.getReason() == Reason.VOTE) {
+        if(e.getKilled().getRole() == this && e.getReason() == Reason.VOTE && e.getKilled().isRoleActive()) {
             needToPlay.add(e.getKilled());
             getGame().broadcastFunction(lgp -> roleFormat(lgp, "death.broadcast", getName(lgp)));
             e.getKilled().sendRoleFormat(this, "death.message");

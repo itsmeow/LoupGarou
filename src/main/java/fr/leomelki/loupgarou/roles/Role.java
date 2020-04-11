@@ -1,10 +1,12 @@
 package fr.leomelki.loupgarou.roles;
 
 import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import fr.leomelki.loupgarou.MainLg;
 import fr.leomelki.loupgarou.classes.LGCustomItems;
@@ -91,20 +93,34 @@ public abstract class Role implements Listener {
                     return;
                 }
                 LGPlayer player = players.remove(0);
-                getGame().wait(getTimeout(), () -> {
-                    try {
-                        Role.this.onNightTurnTimeout(player);
-                    } catch(Exception err) {
-                        System.out.println("Error when timeout role");
-                        err.printStackTrace();
-                    }
-                    this.run();
-                }, (currentPlayer, secondsLeft) -> {
-                    return currentPlayer == player ? Translate.get(currentPlayer, "role.generic.yourturn") : Translate.get(currentPlayer, "role.generic.othersturn", getFriendlyName(currentPlayer), secondsLeft);
-                });
-                player.sendMessage("§6" + getTask(player));
-                // player.sendTitle("§6C'est à vous de jouer", "§a"+getTask(), 100);
-                onNightTurn(player, this);
+                if(player.isRoleActive()) {
+                    getGame().wait(getTimeout(), () -> {
+                        try {
+                            Role.this.onNightTurnTimeout(player);
+                        } catch(Exception err) {
+                            System.out.println("Error when timeout role");
+                            err.printStackTrace();
+                        }
+                        this.run();
+                    }, (currentPlayer, secondsLeft) -> {
+                        return currentPlayer == player ? Translate.get(currentPlayer, "role.generic.yourturn") : Translate.get(currentPlayer, "role.generic.othersturn", getFriendlyName(currentPlayer), secondsLeft);
+                    });
+                    player.sendMessage("§6" + getTask(player));
+                    // player.sendTitle("§6C'est à vous de jouer", "§a"+getTask(), 100);
+                    onNightTurn(player, this);
+                } else {
+                    getGame().wait(getTimeout(), ()->{}, (currentPlayer, secondsLeft)->{
+                        return currentPlayer == player ? Translate.get(currentPlayer, "role.generic.noturn") : Translate.get(currentPlayer, "role.generic.othersturn", getFriendlyName(currentPlayer), secondsLeft);
+                    });
+                    Runnable run = this;
+                    new BukkitRunnable() {
+
+                        @Override
+                        public void run() {
+                            run.run();
+                        }
+                    }.runTaskLater(MainLg.getInstance(), 20*(ThreadLocalRandom.current().nextInt(getTimeout()/3*2-4)+4));
+                }
             }
         }.run();
     }

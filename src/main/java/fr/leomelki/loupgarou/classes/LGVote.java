@@ -11,6 +11,7 @@ import java.util.function.Function;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
@@ -294,7 +295,7 @@ public class LGVote {
         updateVotes(voted, false);
     }
 
-    private static EntityArmorStand armorStand = new EntityArmorStand(null, 0, 0, 0);
+    private static EntityArmorStand armorStand = new EntityArmorStand(((CraftWorld)Bukkit.getWorlds().get(0)).getHandle(), 0, 0, 0);
 
     static {
         armorStand.setCustomNameVisible(true);
@@ -333,7 +334,7 @@ public class LGVote {
             int votesNbr = votes.get(voted).size();
 
             for(LGPlayer lgp : viewers) {
-                DataWatcher dw = new DataWatcher(armorStand);
+                DataWatcher dw = armorStand.getDataWatcher();
                 dw.a(0, (byte) 0x20);
                 dw.a(2, Translate.get(lgp, "voting.display.head", votesNbr));
                 PacketPlayOutEntityMetadata meta = new PacketPlayOutEntityMetadata(entityId, dw, true);

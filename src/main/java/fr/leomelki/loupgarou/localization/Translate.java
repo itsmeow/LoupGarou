@@ -6,6 +6,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import org.bukkit.ChatColor;
+
 import fr.leomelki.loupgarou.classes.LGPlayer;
 
 public class Translate {
@@ -42,7 +44,7 @@ public class Translate {
 
     public static String get(LGPlayer player, String key) {
         ResourceBundle bundle = getBundle(player);
-        return bundle.containsKey(key) ? bundle.getString(key).replaceAll("'''", "'") : key;
+        return bundle.containsKey(key) ? bundle.getString(key).replaceAll("''", "'") : key;
     }
     
     private static String get2(LGPlayer player, String key) {
@@ -53,6 +55,14 @@ public class Translate {
     public static String get(LGPlayer player, String key, Object... args) {
         ResourceBundle bundle = getBundle(player);
         return bundle.containsKey(key) ? format(player, get2(player, key), args) : key;
+    }
+    
+    public static String getColor(LGPlayer player, String key) {
+        return ChatColor.translateAlternateColorCodes('&', get(player, key));
+    }
+
+    public static String getColor(LGPlayer player, String key, Object... args) {
+        return ChatColor.translateAlternateColorCodes('&', get(player, key, args));
     }
 
     public static MessageFormat getFormatter(LGPlayer player, String format) {

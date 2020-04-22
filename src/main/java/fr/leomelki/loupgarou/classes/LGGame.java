@@ -13,7 +13,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -408,7 +407,8 @@ public class LGGame implements Listener {
             update.setFoodSaturation(1);
             update.setHealth(20);
             update.sendPacket(p);
-            lgp.getScoreboard().getLine(0).setDisplayName(ChatColor.translateAlternateColorCodes('&', Translate.get(lgp, "game.pickingroles")));
+            if(lgp.getScoreboard() != null && lgp.getScoreboard().getLine(0) != null)
+                lgp.getScoreboard().getLine(0).setDisplayName(ChatColor.translateAlternateColorCodes('&', Translate.get(lgp, "game.pickingroles")));
         }
 
         try {
@@ -471,6 +471,7 @@ public class LGGame implements Listener {
             setRole("Voyante");
             setRole("Sorciere");
             setRole("Garde");
+            break;
         case 4:
             setRole("LoupGarou");
             setRole("Voyante");
@@ -647,9 +648,9 @@ public class LGGame implements Listener {
         for(LGPlayer player : getAlive())
             player.leaveChat();
         for(LGPlayer player : getInGame()) {
-            player.stopRecord();
+            //player.stopRecord();
             player.playAudio(LGSound.START_NIGHT, 0.5);
-            player.playRecord(Material.RECORD_6);
+            //player.playRecord(Material.RECORD_6);
         }
         day = false;
         Bukkit.getPluginManager().callEvent(new LGDayEndEvent(this));
@@ -843,9 +844,9 @@ public class LGGame implements Listener {
         broadcastFormat("game.day.start2");
 
         for(LGPlayer p : getInGame()) {
-            p.stopRecord();
+            //p.stopRecord();
             p.playAudio(LGSound.START_DAY, 0.5);
-            p.playRecord(Material.RECORD_7);
+            //p.playRecord(Material.RECORD_7);
         }
 
         LGNightEndEvent eventNightEnd = new LGNightEndEvent(this);
@@ -1006,7 +1007,7 @@ public class LGGame implements Listener {
         Bukkit.getPluginManager().callEvent(event);
         if(!event.isCancelled()) {
             broadcastFormat("game.mayor.vote.start");
-            vote = new LGVote(180, 20, this, true, (player, secondsLeft) -> {
+            vote = new LGVote(60, 10, this, true, (player, secondsLeft) -> {
                 return player.getCache().has("vote") ? Translate.get(player, "voting.vote", player.getCache().<LGPlayer>get("vote").getName()) : Translate.get(player, "voting.vote.time", secondsLeft);
             });
             vote.start(getAlive(), getInGame(), () -> {
@@ -1047,7 +1048,7 @@ public class LGGame implements Listener {
         if(!event.isCancelled()) {
             broadcastFormat("voting.start");
             isPeopleVote = true;
-            vote = new LGVote(180, 20, this, false, (player, secondsLeft) -> {
+            vote = new LGVote(60, 10, this, false, (player, secondsLeft) -> {
                 return player.getCache().has("vote") ? Translate.get(player, "voting.vote", player.getCache().<LGPlayer>get("vote").getName()) : Translate.get(player, "voting.vote.time", secondsLeft);
             });
             vote.start(getAlive(), getInGame(), () -> {

@@ -5,6 +5,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -172,6 +173,14 @@ public abstract class Role implements Listener {
 
     public String roleFormat(LGPlayer player, String key, Object... args) {
         return Translate.get(player, roleConfigName.toLowerCase() + "." + key, args);
+    }
+    
+    public String roleFormatColor(LGPlayer player, String key) {
+        return ChatColor.translateAlternateColorCodes('&', roleFormat(player, key));
+    }
+
+    public String roleFormatColor(LGPlayer player, String key, Object... args) {
+        return ChatColor.translateAlternateColorCodes('&', roleFormat(player, key, args));
     }
 
     public Function<LGPlayer, String> roleFormat(String key) {

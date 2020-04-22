@@ -77,7 +77,7 @@ public class RSorciere extends Role {
     }
 
     private Inventory createInventory(LGPlayer player) {
-        Inventory inventory = Bukkit.createInventory(null, InventoryType.BREWING, sauver == null ? roleFormat(player, "gui.notarget") : roleFormat(player, "gui.target.name", sauver.getName()));
+        Inventory inventory = Bukkit.createInventory(null, InventoryType.BREWING, sauver == null ? roleFormatColor(player, "gui.notarget") : roleFormatColor(player, "gui.target", sauver.getName()));
         ItemStack[] items = new ItemStack[4];
         items[0] = createLifePotion(player);
         items[1] = createNothingItem(player);
@@ -87,7 +87,7 @@ public class RSorciere extends Role {
             inventory.setItem(0, null);
         }
         if(sauver != null) {
-            inventory.setItem(4, createTargetItem(player));
+            inventory.setItem(3, createTargetItem(player));
         }
         if(player.getCache().getBoolean("witch_used_death")) {
             inventory.setItem(2, null);
@@ -112,15 +112,19 @@ public class RSorciere extends Role {
     }
 
     private ItemStack createTargetItem(LGPlayer player) {
-        return item(player, "target", Material.ARROW, false);
+        ItemStack stack = new ItemStack(Material.ARROW);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName(sauver != null ? roleFormatColor(player, "gui.target", sauver.getName()) : roleFormatColor(player, "gui.notarget", sauver.getName()));
+        stack.setItemMeta(meta);
+        return stack;
     }
 
     private ItemStack item(LGPlayer player, String name, Material mat, boolean hasLore) {
         ItemStack stack = new ItemStack(mat);
         ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName(roleFormat(player, "gui." + name + ".name"));
+        meta.setDisplayName(roleFormatColor(player, "gui." + name + ".name"));
         if(hasLore) {
-            meta.setLore(Arrays.asList(roleFormat(player, "gui." + name + ".lore").split("\n")));
+            meta.setLore(Arrays.asList(roleFormatColor(player, "gui." + name + ".lore").split("\n")));
         }
         stack.setItemMeta(meta);
         return stack;
@@ -131,9 +135,9 @@ public class RSorciere extends Role {
         dye.setColor(dyeC);
         ItemStack stack = dye.toItemStack();
         ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName(roleFormat(player, "gui." + name + ".name"));
+        meta.setDisplayName(roleFormatColor(player, "gui." + name + ".name"));
         if(hasLore) {
-            meta.setLore(Arrays.asList(roleFormat(player, "gui." + name + ".lore").split("\n")));
+            meta.setLore(Arrays.asList(roleFormatColor(player, "gui." + name + ".lore").split("\n")));
         }
         stack.setItemMeta(meta);
         return stack;
@@ -144,7 +148,6 @@ public class RSorciere extends Role {
         p.closeInventory();
     }
 
-    @SuppressWarnings("deprecation")
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
         ItemStack item = e.getCurrentItem();
@@ -154,7 +157,7 @@ public class RSorciere extends Role {
         if(lgp.getRole() != this || item == null || item.getItemMeta() == null)
             return;
 
-        if(item.getType() == Material.INK_SACK && DyeColor.getByData(item.getData().getData()) == DyeColor.PURPLE && sauver != null) {// Potion de vie
+        if(e.getSlot() == 0 && item.getType() == Material.INK_SACK && sauver != null) {// Potion de vie
             e.setCancelled(true);
             closeInventory(player);
             saveLife(lgp);
@@ -164,7 +167,7 @@ public class RSorciere extends Role {
             lgp.sendRoleFormat(this, "timeout");
             lgp.hideView();
             callback.run();
-        } else if(item.getType() == Material.INK_SACK && DyeColor.getByData(item.getData().getData()) == DyeColor.LIGHT_BLUE) {// Potion de mort
+        } else if(e.getSlot() == 2 && item.getType() == Material.INK_SACK) {// Potion de mort
             e.setCancelled(true);
             player.getInventory().setItem(8, createCancelItem(lgp));
             player.updateInventory();

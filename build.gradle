@@ -15,6 +15,7 @@ apply plugin: 'io.freefair.lombok'
 apply plugin: 'kr.entree.spigradle'
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -22,9 +23,9 @@ targetCompatibility = JavaVersion.VERSION_1_8
 compileJava.options.encoding = "UTF-8"
 generateLombokConfig.enabled = false
 
-group 'fr.leomelki'
-version '1.8.8-1.1.0'
-archivesBaseName = 'LoupGarou'
+group = project.maven_group
+version "${project.mc_version}-${project.project_version}"
+archivesBaseName = project.project_name
 
 repositories {
   spigot()
@@ -36,7 +37,7 @@ lombok {
 }
 
 dependencies {
-  compileOnly spigotAll('1.8.8')
+  compileOnly spigotAll("${project.mc_version}")
   compileOnly protocolLib()
 }
 
@@ -54,4 +55,48 @@ spigot {
         defaults = 'op'
     }
   }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId project.group
+            artifactId project.archivesBaseName
+            version project.version
+            from components.java
+            pom {
+                name = project.project_name
+                url = project.url
+                packaging = 'jar'
+                scm {
+                    connection = "scm:git:git://github.com/" + project.github + ".git"
+                    developerConnection = "scm:git:git@github.com:" + project.github + ".git"
+                    url = "https://github.com/" + project.github
+                }
+                issueManagement {
+                    system = 'github'
+                    url = "https://github.com/" + project.github + ".git/issues"
+                }
+                organization {
+                    name = 'itsmeow Mods'
+                    url = 'https://itsmeow.dev/'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            if ((System.getenv("MAVEN_USER_LG") != '') && (System.getenv("MAVEN_PASSWORD_LG") != '')) {
+                credentials {
+                    username System.getenv("MAVEN_USER_LG")
+                    password System.getenv("MAVEN_PASSWORD_LG")
+                }
+            }
+            if (System.getenv("MAVEN_URL_LG") != '') {
+                url System.getenv("MAVEN_URL_LG")
+            } else {
+                url "file:///${project.buildDir}/repo"
+            }
+        }
+    }
 }

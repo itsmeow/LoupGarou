@@ -40,36 +40,30 @@ public class JoinListener implements Listener {
     }
 
     public static void onJoin(Player p, String msg) {
-        // WrapperPlayServerScoreboardTeam myTeam = new
-        // WrapperPlayServerScoreboardTeam();
-        // myTeam.setName(p.getName());
-        // myTeam.setPrefix("");
-        // myTeam.setPlayers(Arrays.asList(p.getName()));
-        // myTeam.setMode(0);
+        /*WrapperPlayServerScoreboardTeam myTeam = new WrapperPlayServerScoreboardTeam();
+        myTeam.setName(p.getName());
+        myTeam.setPrefix("");
+        myTeam.setPlayers(Arrays.asList(p.getName()));
+        myTeam.setMode(0);*/
         boolean noSpec = p.getGameMode() != GameMode.SPECTATOR;
         for(Player player : Bukkit.getOnlinePlayers()) {
             if(player != p) {
                 if(player.getGameMode() != GameMode.SPECTATOR)
                     player.hidePlayer(p);
-                // WrapperPlayServerScoreboardTeam team = new WrapperPlayServerScoreboardTeam();
-                // team.setName(player.getName());
-                // team.setPrefix("");
-                // team.setPlayers(Arrays.asList(player.getName()));
-                // team.setMode(0);
+                /*WrapperPlayServerScoreboardTeam team = new WrapperPlayServerScoreboardTeam();
+                team.setName(player.getName());
+                team.setPrefix("");
+                team.setPlayers(Arrays.asList(player.getName()));
+                team.setMode(0);
 
-                // team.sendPacket(p);
-                // myTeam.sendPacket(player);
+                team.sendPacket(p);
+                myTeam.sendPacket(player);*/
             }
         }
         p.setFoodLevel(6);
-        /*
-         * if(msg == null || !msg.equals("joinall")) { p.getPlayer().setResourcePack(
-         * "http://leomelki.fr/mcgames/ressourcepacks/v29/loup_garou.zip"); } else {
-         */
         LGPlayer lgp = LGPlayer.thePlayer(p);
         lgp.showView();
         lgp.join(MainLg.getInstance().getCurrentGame());
-        // }
         if(noSpec)
             p.setGameMode(GameMode.ADVENTURE);
 

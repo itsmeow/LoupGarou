@@ -190,12 +190,15 @@ public class MainLg extends JavaPlugin {
                             return true;
                         } else {
                             sender.sendMessage("Incorrect lang \"" + args[1] + "\"! Valid language codes: \"fr-fr\", \"en-us\"");
+                            return true;
                         }
                     } else {
                         sender.sendMessage("Must be player to use command!");
+                        return true;
                     }
                 } else {
                     format(sender, "command.generic.nopermission");
+                    return true;
                 }
             }
             if(!sender.hasPermission("loupgarou.admin")) {

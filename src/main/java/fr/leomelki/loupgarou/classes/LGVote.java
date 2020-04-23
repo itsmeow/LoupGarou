@@ -9,19 +9,16 @@ import java.util.StringJoiner;
 import java.util.function.Function;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
+
+import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 
 import fr.leomelki.com.comphenix.packetwrapper.WrapperPlayServerEntityDestroy;
-import fr.leomelki.com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment;
 import fr.leomelki.com.comphenix.packetwrapper.WrapperPlayServerEntityLook;
 import fr.leomelki.com.comphenix.packetwrapper.WrapperPlayServerSpawnEntityLiving;
-import fr.leomelki.loupgarou.MainLg;
 import fr.leomelki.loupgarou.classes.LGGame.TextGenerator;
 import fr.leomelki.loupgarou.classes.LGPlayer.LGChooseCallback;
 import fr.leomelki.loupgarou.events.LGVoteLeaderChange;
@@ -29,7 +26,6 @@ import fr.leomelki.loupgarou.localization.Translate;
 import fr.leomelki.loupgarou.utils.VariousUtils;
 import lombok.Getter;
 import net.minecraft.server.v1_8_R3.EntityArmorStand;
-import net.minecraft.server.v1_8_R3.PacketPlayOutEntityMetadata;
 
 public class LGVote {
     @Getter
@@ -200,19 +196,13 @@ public class LGVote {
     }
 
     public void vote(LGPlayer voter, LGPlayer voted) {
-        boolean changeVote = runVote(voter, voted);
-        sendVoteMessages(lg -> voter.getName(), voter, voted, changeVote);
+        voteNamed(lg -> voter.getName(), voter, voted);
     }
 
     public void voteNamed(Function<LGPlayer, String> voterName, LGPlayer voter, LGPlayer voted) {
-        boolean changeVote = runVote(voter, voted);
-        sendVoteMessages(voterName, voter, voted, changeVote);
-    }
-
-    private boolean runVote(LGPlayer voter, LGPlayer voted) {
         if(blacklisted.contains(voted)) {
             voter.sendFormat("voting.blacklisted", voted.getName());
-            return false;
+            return;
         }
         if(voted == voter.getCache().get("vote"))
             voted = null;
@@ -253,7 +243,7 @@ public class LGVote {
         if(voter.getPlayer() != null) {
             showVoting(voter, voted);
         }
-        return changeVote;
+        sendVoteMessages(voterName, voter, voted, changeVote);
     }
 
     private void sendVoteMessages(Function<LGPlayer, String> broadcastVoterName, LGPlayer voter, LGPlayer voted, boolean changeVote) {
@@ -299,13 +289,14 @@ public class LGVote {
         armorStand.setCustomNameVisible(true);
         armorStand.setInvisible(true);
         armorStand.setGravity(false);
+        armorStand.setCustomName(ChatColor.translateAlternateColorCodes('&', "&a&l✿"));
     }
     
     private static EntityArmorStand armorStand2 = new EntityArmorStand(((CraftWorld)Bukkit.getWorlds().get(0)).getHandle(), 0, 0, 0);
     static {
-        armorStand2.setInvisible(false);
+        armorStand2.setCustomNameVisible(true);
+        armorStand2.setInvisible(true);
         armorStand2.setGravity(false);
-        armorStand2.setCustomNameVisible(false);
     }
 
     private void updateVotes(LGPlayer voted, boolean kill) {
@@ -341,11 +332,9 @@ public class LGVote {
             int votesNbr = votes.get(voted).size();
 
             for(LGPlayer lgp : viewers) {
-                armorStand.setCustomName(Translate.getColor(lgp, "voting.display.head", votesNbr));
-                PacketPlayOutEntityMetadata meta = new PacketPlayOutEntityMetadata(entityId, armorStand.getDataWatcher(), true);
-
+                armorStand2.setCustomName(Translate.getColor(lgp, "voting.display.head", votesNbr));
+                spawn.setMetadata(WrappedDataWatcher.getEntityWatcher(armorStand.getBukkitEntity()));
                 spawn.sendPacket(lgp.getPlayer());
-                ((CraftPlayer) lgp.getPlayer()).getHandle().playerConnection.sendPacket(meta);
             }
         }
     }
@@ -371,9 +360,7 @@ public class LGVote {
 
             spawn.setYaw(yaw);
             spawn.sendPacket(to.getPlayer());
-
-            PacketPlayOutEntityMetadata meta = new PacketPlayOutEntityMetadata(entityId, armorStand.getDataWatcher(), true);
-            ((CraftPlayer) to.getPlayer()).getHandle().playerConnection.sendPacket(meta);
+            spawn.setMetadata(WrappedDataWatcher.getEntityWatcher(armorStand.getBukkitEntity()));
 
             WrapperPlayServerEntityLook look = new WrapperPlayServerEntityLook();
             look.setEntityID(entityId);
@@ -403,28 +390,13 @@ public class LGVote {
 
             spawn.setYaw(yaw);
             spawn.sendPacket(to.getPlayer());
-
-            PacketPlayOutEntityMetadata meta = new PacketPlayOutEntityMetadata(entityId, armorStand2.getDataWatcher(), true);
-            ((CraftPlayer) to.getPlayer()).getHandle().playerConnection.sendPacket(meta);
+            spawn.setMetadata(WrappedDataWatcher.getEntityWatcher(armorStand.getBukkitEntity()));
 
             WrapperPlayServerEntityLook look = new WrapperPlayServerEntityLook();
             look.setEntityID(entityId);
             look.setPitch(0);
             look.setYaw(yaw);
             look.sendPacket(to.getPlayer());
-
-            new BukkitRunnable() {
-
-                @Override
-                public void run() {
-                    WrapperPlayServerEntityEquipment equip = new WrapperPlayServerEntityEquipment();
-                    equip.setEntityID(entityId);
-                    equip.setSlot(4); // helmet
-                    ItemStack skull = new ItemStack(Material.EMERALD);
-                    equip.setItem(skull);
-                    equip.sendPacket(to.getPlayer());
-                }
-            }.runTaskLater(MainLg.getInstance(), 2);
         }
     }
 

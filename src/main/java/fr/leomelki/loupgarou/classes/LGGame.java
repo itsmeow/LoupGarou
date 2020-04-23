@@ -493,7 +493,7 @@ public class LGGame implements Listener {
             setRole("Dictateur");
             break;
         default:
-            Bukkit.broadcastMessage("A fatal error has occurred! The game started with players not between 5-15. Ending game...");
+            Bukkit.broadcastMessage("A fatal error has occurred! The game started with players not between " + MIN_PLAYERS + "-" + MAX_PLAYERS + ". Ending game...");
             this.endGame(LGWinType.NONE);
             break;
         }
@@ -567,7 +567,7 @@ public class LGGame implements Listener {
                     lgp.getScoreboard().getLine(i).delete();
             } else
                 for(LGPlayer lgp : getInGame())
-                    lgp.getScoreboard().getLine(i).setDisplayName("§e" + role.getNumber() + " §6- §e" + ChatColor.translateAlternateColorCodes('&', role.getRole().getName(lgp).replace("&l", "")));
+                    lgp.getScoreboard().getLine(i).setDisplayName("§e" + role.getNumber() + "§6x §e" + ChatColor.translateAlternateColorCodes('&', role.getRole().getName(lgp).replace("&l", "")));
         }
         for(int i = 15; i >= roles.size(); i--)
             for(LGPlayer lgp : getInGame())

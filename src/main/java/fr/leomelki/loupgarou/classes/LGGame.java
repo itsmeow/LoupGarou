@@ -1007,6 +1007,9 @@ public class LGGame implements Listener {
         Bukkit.getPluginManager().callEvent(event);
         if(!event.isCancelled()) {
             broadcastFormat("game.mayor.vote.start");
+            for(LGPlayer lgp : getInGame()) {
+                lgp.sendTitle(Translate.get(lgp, "game.mayor.vote.start.title"), "", 100);
+            }
             vote = new LGVote(60, 10, this, true, (player, secondsLeft) -> {
                 return player.getCache().has("vote") ? Translate.get(player, "voting.vote", player.getCache().<LGPlayer>get("vote").getName()) : Translate.get(player, "voting.vote.time", secondsLeft);
             });
@@ -1047,6 +1050,9 @@ public class LGGame implements Listener {
         Bukkit.getPluginManager().callEvent(event);
         if(!event.isCancelled()) {
             broadcastFormat("voting.start");
+            for(LGPlayer lgp : getInGame()) {
+                lgp.sendTitle(Translate.get(lgp, "voting.start.title"), "", 100);
+            }
             isPeopleVote = true;
             vote = new LGVote(60, 10, this, false, (player, secondsLeft) -> {
                 return player.getCache().has("vote") ? Translate.get(player, "voting.vote", player.getCache().<LGPlayer>get("vote").getName()) : Translate.get(player, "voting.vote.time", secondsLeft);

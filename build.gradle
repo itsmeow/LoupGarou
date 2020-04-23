@@ -44,15 +44,20 @@ dependencies {
 spigot {
   authors = ['leomelki','itsmeow']
   depends = ['ProtocolLib']
+  main = 'fr.leomelki.loupgarou.MainLg'
+  description = 'Permet de jouer au jeu du loup garou'
   load = STARTUP
   commands {
-    lg {
-    }
+    lg
   }
   permissions {
     'loupgarou.admin' {
         description = 'Allows using lg command'
         defaults = 'op'
+    }
+    'loupgarou.lang' {
+        description = 'Allows using lg lang command'
+        defaults = 'true'
     }
   }
 }

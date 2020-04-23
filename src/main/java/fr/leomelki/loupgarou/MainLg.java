@@ -181,6 +181,23 @@ public class MainLg extends JavaPlugin {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(label.equalsIgnoreCase("lg")) {
+            if(args.length == 2 && args[0].equals("lang")) {
+                if(sender.hasPermission("loupgarou.lang")) {
+                    if(sender instanceof Player) {
+                        if(Translate.containsLocale(args[1])) {
+                            LGPlayer.thePlayer((Player) sender).setLocale(args[1]);
+                            sender.sendMessage("Lang set: " + args[1]);
+                            return true;
+                        } else {
+                            sender.sendMessage("Incorrect lang \"" + args[1] + "\"! Valid language codes: \"fr-fr\", \"en-us\"");
+                        }
+                    } else {
+                        sender.sendMessage("Must be player to use command!");
+                    }
+                } else {
+                    format(sender, "command.generic.nopermission");
+                }
+            }
             if(!sender.hasPermission("loupgarou.admin")) {
                 format(sender, "command.generic.nopermission");
                 return true;
@@ -331,11 +348,6 @@ public class MainLg extends JavaPlugin {
                         }
                     }
                     return true;*/
-                } else if(args[0].equals("lang")) {
-                    if(sender instanceof Player && args.length == 2 && Translate.containsLocale(args[1])) {
-                        LGPlayer.thePlayer((Player) sender).setLocale(args[1]);
-                    }
-                    return true;
                 }
             }
             format(sender, "command.generic.nosubcommand");
